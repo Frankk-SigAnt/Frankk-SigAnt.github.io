@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Macromogic Blog</title>
+  
+  
+  <link href="https://blog.macromogic.xyz/atom.xml" rel="self"/>
+  
+  <link href="https://blog.macromogic.xyz/"/>
+  <updated>2021-02-05T15:38:24.865Z</updated>
+  <id>https://blog.macromogic.xyz/</id>
+  
+  <author>
+    <name>T H</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>演化多目标优化：基于支配的经典算法NSGA-II</title>
+    <link href="https://blog.macromogic.xyz/2021/02/05/nsga-ii/"/>
+    <id>https://blog.macromogic.xyz/2021/02/05/nsga-ii/</id>
+    <published>2021-02-05T15:36:14.000Z</published>
+    <updated>2021-02-05T15:38:24.865Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;演化多目标优化基于支配的经典算法nsga-ii&quot;&gt;演化多目标优化：基于支配的经典算法NSGA-II&lt;/h1&gt;
+&lt;p&gt;最近在学习并尝试实现演化多目标优化的相关算法，希望我能通过这篇博客把算法了解得更加透彻orz&lt;/p&gt;
+&lt;h2 id=&quot;基础篇&quot;&gt;基础篇&lt;/h2&gt;
+&lt;h3 id=&quot;帕累托支配&quot;&gt;帕累托支配&lt;/h3&gt;
+&lt;p&gt;在多目标优化领域，一般来说，决策变量和目标都是由多个元素组成的，而不同目标之间往往难以比较。如果将决策/目标视作一个向量&lt;span class=&quot;math inline&quot;&gt;\(\mathbf{x}\)&lt;/span&gt;，我们用&lt;strong&gt;帕累托支配（Pareto dominance）&lt;/strong&gt;来刻画向量间的关系。对于两个&lt;span class=&quot;math inline&quot;&gt;\(n\)&lt;/span&gt;维向量&lt;span class=&quot;math inline&quot;&gt;\(\mathbf{x}^{(1)}, \mathbf{x}^{(2)}\)&lt;/span&gt;，我们称&lt;span class=&quot;math inline&quot;&gt;\(\mathbf{x}^{(1)}\)&lt;/span&gt;支配&lt;span class=&quot;math inline&quot;&gt;\(\mathbf{x}^{(2)}\)&lt;/span&gt;（记作&lt;span class=&quot;math inline&quot;&gt;\(\mathbf{x}^{(1)} \prec \mathbf{x}^{(2)}\)&lt;/span&gt;）当且仅当&lt;span class=&quot;math inline&quot;&gt;\(\forall 1 \leq i \leq n,\ \mathbf{x}^{(1)}_i \leq \mathbf{x}^{(2)}_i\)&lt;/span&gt;，且&lt;span class=&quot;math inline&quot;&gt;\(\exists 1 \leq i \leq n,\ \mathbf{x}^{(1)}_i &amp;lt; \mathbf{x}^{(2)}_i\)&lt;/span&gt;。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="EMO" scheme="https://blog.macromogic.xyz/categories/EMO/"/>
+    
+    
+    <category term="Notes" scheme="https://blog.macromogic.xyz/tags/Notes/"/>
+    
+    <category term="EMO" scheme="https://blog.macromogic.xyz/tags/EMO/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>线性代数复习：置换矩阵和“名次向量”</title>
+    <link href="https://blog.macromogic.xyz/2021/02/04/permutation-rank/"/>
+    <id>https://blog.macromogic.xyz/2021/02/04/permutation-rank/</id>
+    <published>2021-02-03T17:31:03.000Z</published>
+    <updated>2021-02-05T15:28:25.950Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;线性代数复习置换矩阵和名次向量&quot;&gt;线性代数复习：置换矩阵和“名次向量”&lt;/h1&gt;
+&lt;p&gt;没事瞎水博客系列……&lt;/p&gt;
+&lt;p&gt;在日常处理矩阵的时候，有时我们希望在不更改矩阵的前提下获知其每一行/列的字典序&lt;strong&gt;“名次”（rank）&lt;/strong&gt;。MATLAB/NumPy分别提供了&lt;code&gt;sortrows&lt;/code&gt;/&lt;code&gt;argsort&lt;/code&gt;方法来获得一个&lt;strong&gt;“索引向量”（index vector）&lt;/strong&gt;，表示排序后的矩阵的每一行/列对应原矩阵的行/列号。只需对索引向量再做一次排序，便可得到对应的&lt;strong&gt;”名次向量“（rank vector）&lt;/strong&gt;。对应MATLAB代码大致如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight matlab&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[~, index] = &lt;span class=&quot;built_in&quot;&gt;sortrows&lt;/span&gt;(matrix);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[~, rank] = &lt;span class=&quot;built_in&quot;&gt;sort&lt;/span&gt;(index);&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;为了深入理解这个操作背后的原理，我参考了StackExchange上的&lt;a href=&quot;https://math.stackexchange.com/questions/3607762/why-does-sorting-twice-produce-a-rank-vector&quot;&gt;这篇回答&lt;/a&gt;。从他的证明过程中我发现了一个关键：排序前后两个矩阵的关系可以用&lt;strong&gt;排列/置换（permutation）&lt;/strong&gt;来刻画。下面我将站在线性代数的视角来系统化解释一下“名次向量”背后的原理。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="Math" scheme="https://blog.macromogic.xyz/categories/Math/"/>
+    
+    
+    <category term="Math" scheme="https://blog.macromogic.xyz/tags/Math/"/>
+    
+    <category term="Notes" scheme="https://blog.macromogic.xyz/tags/Notes/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>远端虚拟机环境配置避雷指南</title>
+    <link href="https://blog.macromogic.xyz/2020/10/30/lab-env-setup/"/>
+    <id>https://blog.macromogic.xyz/2020/10/30/lab-env-setup/</id>
+    <published>2020-10-30T14:52:21.000Z</published>
+    <updated>2021-02-05T15:28:25.949Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;2021-02-04 Update: 早知道就先升级到18.04或者20.04来配置了，也不会有下面这么多坑了orz&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;感谢上天让我在忙的头都要掉了的时候还有时间来写这篇博客记录这艰难曲折的配环境之路……希望以下内容对读者没有任何帮助。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="Manual" scheme="https://blog.macromogic.xyz/categories/Manual/"/>
+    
+    
+    <category term="Manual" scheme="https://blog.macromogic.xyz/tags/Manual/"/>
+    
+    <category term="Setup" scheme="https://blog.macromogic.xyz/tags/Setup/"/>
+    
+    <category term="Ubuntu" scheme="https://blog.macromogic.xyz/tags/Ubuntu/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>算法复习笔记：网络流</title>
+    <link href="https://blog.macromogic.xyz/2020/08/11/max-flow/"/>
+    <id>https://blog.macromogic.xyz/2020/08/11/max-flow/</id>
+    <published>2020-08-11T15:16:49.000Z</published>
+    <updated>2021-02-05T15:28:25.949Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;算法复习笔记网络流&quot;&gt;算法复习笔记：网络流&lt;/h1&gt;
+&lt;p&gt;龟速补上欠下的账ing……&lt;span class=&quot;math inline&quot;&gt;\(\DeclareMathOperator{\capa}{cap}\)&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;写完发现读着好晦涩，但数学不就是这样的吗🌚&lt;/p&gt;
+&lt;h2 id=&quot;基本概念符号表示&quot;&gt;基本概念/符号表示&lt;/h2&gt;
+&lt;p&gt;为了方便下文叙述，现做如下规定/定义：&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;math inline&quot;&gt;\(G = (V, E)\)&lt;/span&gt;是有向、无平行边的图，每条边边权为正，其中有一个&lt;strong&gt;源点（source）&lt;/strong&gt;&lt;span class=&quot;math inline&quot;&gt;\(s\)&lt;/span&gt;和&lt;strong&gt;汇（sink）点&lt;/strong&gt;&lt;span class=&quot;math inline&quot;&gt;\(t\)&lt;/span&gt;满足：没有一条边以&lt;span class=&quot;math inline&quot;&gt;\(t\)&lt;/span&gt;为起点，或以&lt;span class=&quot;math inline&quot;&gt;\(s\)&lt;/span&gt;为终点。&lt;/p&gt;
+&lt;p&gt;对某边&lt;span class=&quot;math inline&quot;&gt;\(e \in E\)&lt;/span&gt;，记该边边权为&lt;span class=&quot;math inline&quot;&gt;\(c(e)\)&lt;/span&gt;。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="Algorithm" scheme="https://blog.macromogic.xyz/categories/Algorithm/"/>
+    
+    
+    <category term="Math" scheme="https://blog.macromogic.xyz/tags/Math/"/>
+    
+    <category term="Notes" scheme="https://blog.macromogic.xyz/tags/Notes/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>算法复习笔记：多项式凭什么能FFT？</title>
+    <link href="https://blog.macromogic.xyz/2020/06/23/fft/"/>
+    <id>https://blog.macromogic.xyz/2020/06/23/fft/</id>
+    <published>2020-06-23T12:23:19.000Z</published>
+    <updated>2021-02-05T15:28:25.949Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;算法复习笔记多项式凭什么能fft&quot;&gt;算法复习笔记：多项式凭什么能FFT？&lt;/h1&gt;
+&lt;h2 id=&quot;写在前面&quot;&gt;写在前面&lt;/h2&gt;
+&lt;p&gt;本文仅面向学习FFT算法的&lt;strong&gt;CS学生&lt;/strong&gt;。文中关于傅里叶变换的阐述仅用于帮助&lt;strong&gt;快速简要&lt;/strong&gt;地理解算法背后时域/频域变换的意义，逻辑性不会像「信号与系统」课那么强。本人没系统学过「信号与系统」这门课，能写出这篇文章也要感谢来自FDU、SCUT的两位同学的帮助。欢迎各位大佬对本文内容进行指正！&lt;/p&gt;
+&lt;p&gt;要系统学习「信号与系统」的内容，可参阅&lt;strong&gt;奥本海默&lt;/strong&gt;著的《信号与系统》一书。&lt;/p&gt;
+&lt;p&gt;在我学习FFT时，第一个面对的问题背景是&lt;strong&gt;「给定两个多项式，如何快速求得二者的乘积？」&lt;/strong&gt;老师或者博客会先介绍&lt;strong&gt;多项式的系数表示和点值表示&lt;/strong&gt;（在下一节也会再啰嗦一遍），然后引入&lt;strong&gt;单位根&lt;/strong&gt;和&lt;strong&gt;分治&lt;/strong&gt;思想来实现两种表示法间的转换。&lt;a href=&quot;https://zhuanlan.zhihu.com/p/31584464&quot;&gt;这篇专栏&lt;/a&gt;对算法内容及前置知识的讲解算是非常详尽的了，但它并没有解决一个问题：傅里叶变换的本质是将时域上的卷积转化成频域上的乘法，那么多项式的系数/点值表示为什么能和信号的时域/频域对应？本文将从&lt;strong&gt;偏向EE&lt;/strong&gt;的角度来探讨这个算法，并尝试揭示其中的关联。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="Algorithm" scheme="https://blog.macromogic.xyz/categories/Algorithm/"/>
+    
+    
+    <category term="Math" scheme="https://blog.macromogic.xyz/tags/Math/"/>
+    
+    <category term="Notes" scheme="https://blog.macromogic.xyz/tags/Notes/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>算法复习笔记：贪心求最优Caching策略</title>
+    <link href="https://blog.macromogic.xyz/2020/06/15/ff-cache/"/>
+    <id>https://blog.macromogic.xyz/2020/06/15/ff-cache/</id>
+    <published>2020-06-15T07:54:23.000Z</published>
+    <updated>2021-02-05T15:28:25.949Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;算法复习笔记贪心求最优caching策略&quot;&gt;算法复习笔记：贪心求最优Caching策略&lt;/h1&gt;
+&lt;p&gt;题目来自Algorithm design / Jon Kleinberg, Eva Tardos.—1st ed. 的4.3节。&lt;/p&gt;
+&lt;p&gt;参考文章：&lt;a href=&quot;http://notebook.xyli.me/CS161/Intro-to-greedy-algo1/&quot;&gt;http://notebook.xyli.me/CS161/Intro-to-greedy-algo1/&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;问题背景&quot;&gt;问题背景&lt;/h2&gt;
+&lt;p&gt;假设现在有一个容量为&lt;span class=&quot;math inline&quot;&gt;\(k\)&lt;/span&gt;的缓存（cache）空间，和&lt;span class=&quot;math inline&quot;&gt;\(m\)&lt;/span&gt;个内存block访问请求&lt;span class=&quot;math inline&quot;&gt;\(d_1, d_2, \dots, d_m\)&lt;/span&gt;。对于第&lt;span class=&quot;math inline&quot;&gt;\(i\)&lt;/span&gt;个请求&lt;span class=&quot;math inline&quot;&gt;\(d_i\)&lt;/span&gt;，如果请求的block在缓存中，称其为一次&lt;strong&gt;命中（hit）&lt;/strong&gt;，否则称其为一次&lt;strong&gt;失效/缺页（miss）&lt;/strong&gt;。若出现miss，则需要从内存中读取该block并写入缓存（若缓存已满则会替换掉其中一个block）。现给定请求序列，求一个&lt;strong&gt;最优缓存（caching）策略&lt;/strong&gt;使得miss尽可能少。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="Algorithm" scheme="https://blog.macromogic.xyz/categories/Algorithm/"/>
+    
+    
+    <category term="Notes" scheme="https://blog.macromogic.xyz/tags/Notes/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>码农的自我修养——插头DP</title>
+    <link href="https://blog.macromogic.xyz/2020/03/16/plug-dp/"/>
+    <id>https://blog.macromogic.xyz/2020/03/16/plug-dp/</id>
+    <published>2020-03-16T10:17:38.000Z</published>
+    <updated>2021-02-05T15:28:25.950Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;码农的自我修养插头dp&quot;&gt;码农的自我修养——插头DP&lt;/h1&gt;
+&lt;p&gt;想不到促使我学习插头DP的动机竟然是一道算法课的Lab题，还被网上的假教程演了半天……姑且把学到的东西写一写，纪念一下我对着一屏幕的表画了大半天图的自闭时光。&lt;/p&gt;
+&lt;p&gt;起这个标题的原因实在一篇博客里看到“&lt;strong&gt;转移过程十分码农&lt;/strong&gt;”，敲完代码深以为然，就借用过来了。&lt;/p&gt;
+&lt;p&gt;以下内容仅为插头DP的&lt;strong&gt;一种&lt;/strong&gt;应用情形。若要应用于其他题目，需要对过程略作修改。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;前置知识：状态压缩DP、BFS、哈希&lt;/strong&gt;&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="Algorithm" scheme="https://blog.macromogic.xyz/categories/Algorithm/"/>
+    
+    
+    <category term="Notes" scheme="https://blog.macromogic.xyz/tags/Notes/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>CPC算法笔记——二次剩余</title>
+    <link href="https://blog.macromogic.xyz/2019/09/19/CPC-Quadratic-Residue/"/>
+    <id>https://blog.macromogic.xyz/2019/09/19/CPC-Quadratic-Residue/</id>
+    <published>2019-09-19T00:45:41.000Z</published>
+    <updated>2021-02-05T15:28:25.948Z</updated>
+    
+    
+    <summary type="html">&lt;h2 id=&quot;定义&quot;&gt;定义&lt;/h2&gt;
+&lt;p&gt;一个整数&lt;span class=&quot;math inline&quot;&gt;\(x\)&lt;/span&gt;对另一个整数&lt;span class=&quot;math inline&quot;&gt;\(p\)&lt;/span&gt;的&lt;strong&gt;二次剩余&lt;/strong&gt;，指&lt;span class=&quot;math inline&quot;&gt;\(x^2\)&lt;/span&gt;模&lt;span class=&quot;math inline&quot;&gt;\(p\)&lt;/span&gt;的余数。&lt;/p&gt;
+&lt;p&gt;我们称整数&lt;span class=&quot;math inline&quot;&gt;\(d\)&lt;/span&gt;为&lt;strong&gt;模&lt;span class=&quot;math inline&quot;&gt;\(p\)&lt;/span&gt;的二次剩余&lt;/strong&gt;当且仅当&lt;span class=&quot;math inline&quot;&gt;\(\exists x \in \mathbb{Z} \mbox{ s.t. } x^2 \equiv d \pmod p\)&lt;/span&gt;；反之，称&lt;span class=&quot;math inline&quot;&gt;\(d\)&lt;/span&gt;为&lt;strong&gt;模&lt;span class=&quot;math inline&quot;&gt;\(p\)&lt;/span&gt;的非二次剩余&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;上下文无歧义的情况下可以简称为&lt;strong&gt;剩余&lt;/strong&gt;和&lt;strong&gt;非剩余&lt;/strong&gt;。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="Math" scheme="https://blog.macromogic.xyz/categories/Math/"/>
+    
+    
+    <category term="Math" scheme="https://blog.macromogic.xyz/tags/Math/"/>
+    
+    <category term="CPC" scheme="https://blog.macromogic.xyz/tags/CPC/"/>
+    
+    <category term="Notes" scheme="https://blog.macromogic.xyz/tags/Notes/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>CPC算法笔记——置换和Polya定理</title>
+    <link href="https://blog.macromogic.xyz/2019/08/28/CPC-Polya/"/>
+    <id>https://blog.macromogic.xyz/2019/08/28/CPC-Polya/</id>
+    <published>2019-08-28T07:05:02.000Z</published>
+    <updated>2021-02-05T15:28:25.948Z</updated>
+    
+    
+    <summary type="html">&lt;h2 id=&quot;置换&quot;&gt;置换&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;置换&lt;/strong&gt;即&lt;span class=&quot;math inline&quot;&gt;\([\![1, n]\!] \triangleq \{1, 2, \dots, n\}\)&lt;/span&gt;到自身的1-1变换：&lt;span class=&quot;math inline&quot;&gt;\([\![1, n]\!] \rightarrow [\![1, n]\!]\)&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;math inline&quot;&gt;\(p: i \rightarrow a_i, (a_i \neq a_j, i \neq j)\)&lt;/span&gt;，&lt;/p&gt;
+&lt;p&gt;其中&lt;span class=&quot;math inline&quot;&gt;\(a_1, a_2, \dots, a_n\)&lt;/span&gt;是&lt;span class=&quot;math inline&quot;&gt;\([\![1, n]\!]\)&lt;/span&gt;的一个&lt;strong&gt;全排列&lt;/strong&gt;，&lt;/p&gt;
+&lt;p&gt;称此置换为&lt;span class=&quot;math inline&quot;&gt;\(n\)&lt;/span&gt;阶置换，记为：&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;math inline&quot;&gt;\(p=\pmatrix{1&amp;amp;2&amp;amp;\cdots&amp;amp;n\\a_1&amp;amp;a_2&amp;amp;\cdots&amp;amp;a_n}\)&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;math inline&quot;&gt;\(n\)&lt;/span&gt;阶置换共有&lt;span class=&quot;math inline&quot;&gt;\(n!\)&lt;/span&gt;个。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="Math" scheme="https://blog.macromogic.xyz/categories/Math/"/>
+    
+    
+    <category term="Math" scheme="https://blog.macromogic.xyz/tags/Math/"/>
+    
+    <category term="CPC" scheme="https://blog.macromogic.xyz/tags/CPC/"/>
+    
+    <category term="Notes" scheme="https://blog.macromogic.xyz/tags/Notes/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>跌跌撞撞的Hexo小记</title>
+    <link href="https://blog.macromogic.xyz/2019/08/23/Hexo-Setup/"/>
+    <id>https://blog.macromogic.xyz/2019/08/23/Hexo-Setup/</id>
+    <published>2019-08-22T16:26:57.000Z</published>
+    <updated>2021-02-05T15:28:25.948Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;&lt;font color=7A7A7A&gt;&lt;em&gt;&lt;del&gt;这篇文章应该是会长期更新的吧……大概&lt;/del&gt;&lt;/em&gt;&lt;/font&gt;&lt;/p&gt;
+&lt;p&gt;&lt;font color=E0E0E0&gt;&lt;em&gt;&lt;del&gt;是不是颜色调的很淡你们就看不到我&lt;/del&gt;&lt;/em&gt;&lt;/font&gt;&lt;/p&gt;
+&lt;p&gt;去年11月份，怀揣着即将成为CS系学生的觉悟，我决定像周围大佬们一样建立一个属于自己的博客。可气的是，我电脑上的WSL运行的是Ubuntu 16.04.6 LTS，而Ubuntu自己的&lt;code&gt;apt&lt;/code&gt;&lt;strong&gt;向来不会&lt;/strong&gt;安装最新版本（或者较新版本）的工具&lt;del&gt;（当然也不排除我懒得搞镜像源的问题）&lt;/del&gt;，在经历了配置Nginx失败、&lt;code&gt;npm&lt;/code&gt;下载等一年之类的问题之后，我放弃了WordPress和Hexo，并在&lt;em&gt;pg999w&lt;/em&gt;的推荐下入坑了Hugo。&lt;em&gt;However&lt;/em&gt;，我的Hugo源文件一开始是在&lt;font size=1&gt;嫖来的&lt;/font&gt;&lt;a href=&quot;https://blog.t123yh.xyz:2&quot; title=&quot;%%%t123yh&quot;&gt;t123yh&lt;/a&gt;的服务器上编辑的，这也带来了一系列问题比如无法本地预览、服务器重置以后必须重新配置而我又没有写文章来记录、&lt;del&gt;以及本人很懒根本就没更新文章&lt;/del&gt;。总而言之，作为一个已经进入CS系的&lt;del&gt;韭菜&lt;/del&gt;，我决定回到&lt;strong&gt;Hexo&lt;/strong&gt;坑并让这个博客复活。在此感谢&lt;a href=&quot;http://whexy.com&quot; title=&quot;%%%Whexy&quot;&gt;Whexy&lt;/a&gt;和&lt;a href=&quot;https://eveneko.github.io&quot; title=&quot;%%%Eveneko&quot;&gt;Eveneko&lt;/a&gt;的帮助。&lt;/p&gt;
+&lt;p&gt;前排提醒：下列操作均在WSL环境下进行。必要时需&lt;code&gt;sudo&lt;/code&gt;。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="Manual" scheme="https://blog.macromogic.xyz/categories/Manual/"/>
+    
+    
+    <category term="Hexo" scheme="https://blog.macromogic.xyz/tags/Hexo/"/>
+    
+    <category term="Manual" scheme="https://blog.macromogic.xyz/tags/Manual/"/>
+    
+    <category term="Setup" scheme="https://blog.macromogic.xyz/tags/Setup/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>CPC算法笔记——中国剩余定理</title>
+    <link href="https://blog.macromogic.xyz/2019/08/22/CPC-Chinese-Remainder-Theorem/"/>
+    <id>https://blog.macromogic.xyz/2019/08/22/CPC-Chinese-Remainder-Theorem/</id>
+    <published>2019-08-22T08:59:31.000Z</published>
+    <updated>2021-02-05T15:28:25.948Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;中国剩余定理可用于解一元线性方程组： &lt;span class=&quot;math display&quot;&gt;\[
+\begin{cases}
+x \equiv a_1 \pmod {m_1} \\
+x \equiv a_2 \pmod {m_2} \\
+\quad \vdots \\
+x \equiv a_n \pmod {m_n}
+\end{cases}
+\]&lt;/span&gt;&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="Math" scheme="https://blog.macromogic.xyz/categories/Math/"/>
+    
+    
+    <category term="Math" scheme="https://blog.macromogic.xyz/tags/Math/"/>
+    
+    <category term="CPC" scheme="https://blog.macromogic.xyz/tags/CPC/"/>
+    
+    <category term="Notes" scheme="https://blog.macromogic.xyz/tags/Notes/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>UnicodeMath Formula</title>
+    <link href="https://blog.macromogic.xyz/2018/11/15/UnicodeMath-Formula/"/>
+    <id>https://blog.macromogic.xyz/2018/11/15/UnicodeMath-Formula/</id>
+    <published>2018-11-15T07:13:02.000Z</published>
+    <updated>2021-02-05T15:28:25.949Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;&lt;em&gt;本文章搬迁自原Hugo博客&lt;/em&gt;&lt;/p&gt;
+&lt;h1 id=&quot;使用unicodemath输入常用公式&quot;&gt;使用UnicodeMath输入常用公式&lt;/h1&gt;
+&lt;hr /&gt;
+&lt;h2 id=&quot;写在前面&quot;&gt;写在前面&lt;/h2&gt;
+&lt;p&gt;UnicodeMath虽然没有&lt;span class=&quot;math inline&quot;&gt;\(\mathrm{\LaTeX}\)&lt;/span&gt;那么强大的功能，但对一些专业要求不高的人来说已足够日常使用了——只需打开Word（2007版及以上或Office 365所有产品）就能快速键入并实时预览公式。本文主要针对不会使用&lt;span class=&quot;math inline&quot;&gt;\(\mathrm{\LaTeX}\)&lt;/span&gt;、又需要编写大量数学公式的人，简要介绍UnicodeMath格式常用公式的用法。 本文内容由笔者参考过&lt;a href=&quot;https://support.office.com/zh-cn/article/word-%E4%B8%AD%E4%BD%BF%E7%94%A8-unicodemath-%E5%92%8C-latex-%E7%9A%84%E7%BA%BF%E6%80%A7%E6%A0%BC%E5%BC%8F%E5%85%AC%E5%BC%8F-2e00618d-b1fd-49d8-8cb4-8d17f25754f8?ui=zh-CN&amp;amp;rs=zh-CN&amp;amp;ad=CN&quot; title=&quot;Office Support&quot;&gt;Office文档&lt;/a&gt;、&lt;a href=&quot;https://jacobz.top/2017-08/WordMath/&quot; title=&quot;Jacob&amp;#39;s Personal Blog&quot;&gt;Jacob Zhang的个人博客&lt;/a&gt;（特别鸣谢）以及&lt;a href=&quot;http://unicode.org/notes/tn28/UTN28-PlainTextMath-v3.pdf&quot; title=&quot;Unicode Official Document&quot;&gt;Unicode官方文档&lt;/a&gt;后整理而成。如有疏漏，敬请指正。 另外，文末有笔者之前整理的简要公式文档，内容与本文可能有个别出入，仅供参考，欢迎下载！&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="Math" scheme="https://blog.macromogic.xyz/categories/Math/"/>
+    
+    
+    <category term="Math" scheme="https://blog.macromogic.xyz/tags/Math/"/>
+    
+    <category term="Manual" scheme="https://blog.macromogic.xyz/tags/Manual/"/>
+    
+    <category term="Legacy" scheme="https://blog.macromogic.xyz/tags/Legacy/"/>
+    
+  </entry>
+  
+</feed>

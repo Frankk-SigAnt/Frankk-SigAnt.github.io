@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.macromogic.xyz","root":"/","images":"/images","scheme":"Muse","version":"8.2.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
+  </script>
+<meta name="description" content="码农的自我修养——插头DP 想不到促使我学习插头DP的动机竟然是一道算法课的Lab题，还被网上的假教程演了半天……姑且把学到的东西写一写，纪念一下我对着一屏幕的表画了大半天图的自闭时光。 起这个标题的原因实在一篇博客里看到“转移过程十分码农”，敲完代码深以为然，就借用过来了。 以下内容仅为插头DP的一种应用情形。若要应用于其他题目，需要对过程略作修改。 前置知识：状态压缩DP、BFS、哈希">
+<meta property="og:type" content="article">
+<meta property="og:title" content="码农的自我修养——插头DP">
+<meta property="og:url" content="https://blog.macromogic.xyz/2020/03/16/plug-dp/index.html">
+<meta property="og:site_name" content="Macromogic Blog">
+<meta property="og:description" content="码农的自我修养——插头DP 想不到促使我学习插头DP的动机竟然是一道算法课的Lab题，还被网上的假教程演了半天……姑且把学到的东西写一写，纪念一下我对着一屏幕的表画了大半天图的自闭时光。 起这个标题的原因实在一篇博客里看到“转移过程十分码农”，敲完代码深以为然，就借用过来了。 以下内容仅为插头DP的一种应用情形。若要应用于其他题目，需要对过程略作修改。 前置知识：状态压缩DP、BFS、哈希">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200315231540841.png">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200316000043385.png">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200315233958018.png">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200315234209189.png">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200316001325572.png">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200316002332701.png">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200316104905653.png">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200316003249977.png">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200316113928163.png">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200316114228937.png">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200316115027562.png">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200316115947885.png">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200316120553557.png">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200316122142085.png">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200316134439530.png">
+<meta property="og:image" content="https://blog.macromogic.xyz/images/image-20200316135243207.png">
+<meta property="article:published_time" content="2020-03-16T10:17:38.000Z">
+<meta property="article:modified_time" content="2021-02-05T15:28:25.950Z">
+<meta property="article:author" content="T H">
+<meta property="article:tag" content="Notes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.macromogic.xyz/images/image-20200315231540841.png">
+
+
+<link rel="canonical" href="https://blog.macromogic.xyz/2020/03/16/plug-dp/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+<title>码农的自我修养——插头DP | Macromogic Blog</title>
+  
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Macromogic Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Macromogic Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A0%81%E5%86%9C%E7%9A%84%E8%87%AA%E6%88%91%E4%BF%AE%E5%85%BB%E6%8F%92%E5%A4%B4dp"><span class="nav-number">1.</span> <span class="nav-text">码农的自我修养——插头DP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF"><span class="nav-number">1.1.</span> <span class="nav-text">问题背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E7%BD%AE%E6%A6%82%E5%BF%B5"><span class="nav-number">1.2.</span> <span class="nav-text">前置概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%92%E5%A4%B4%E5%92%8C%E6%8B%AC%E5%8F%B7%E5%8C%B9%E9%85%8D"><span class="nav-number">1.2.1.</span> <span class="nav-text">插头和括号匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AE%E5%BB%93%E7%BA%BF"><span class="nav-number">1.2.2.</span> <span class="nav-text">轮廓线</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E8%BD%AC%E7%A7%BB"><span class="nav-number">1.3.</span> <span class="nav-text">状态转移</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E4%BC%98%E5%8C%96"><span class="nav-number">1.4.</span> <span class="nav-text">空间优化</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">T H</p>
+  <div class="site-description" itemprop="description">Nothing but dump.</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/macromgic" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;macromgic" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tonyh0411@gmail.com" title="E-Mail → mailto:tonyh0411@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll site-overview-item animated">
+    <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://blog.hackroid.com/" title="https:&#x2F;&#x2F;blog.hackroid.com" rel="noopener" target="_blank">Hackroid</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://blog.gogo.moe/" title="https:&#x2F;&#x2F;blog.gogo.moe" rel="noopener" target="_blank">Gogo</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.whexy.com/" title="https:&#x2F;&#x2F;www.whexy.com" rel="noopener" target="_blank">Whexy</a>
+        </li>
+    </ul>
+  </div>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.macromogic.xyz/2020/03/16/plug-dp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="T H">
+      <meta itemprop="description" content="Nothing but dump.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Macromogic Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          码农的自我修养——插头DP
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-03-16 18:17:38" itemprop="dateCreated datePublished" datetime="2020-03-16T18:17:38+08:00">2020-03-16</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2021-02-05 23:28:25" itemprop="dateModified" datetime="2021-02-05T23:28:25+08:00">2021-02-05</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Algorithm/" itemprop="url" rel="index"><span itemprop="name">Algorithm</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="码农的自我修养插头dp">码农的自我修养——插头DP</h1>
+<p>想不到促使我学习插头DP的动机竟然是一道算法课的Lab题，还被网上的假教程演了半天……姑且把学到的东西写一写，纪念一下我对着一屏幕的表画了大半天图的自闭时光。</p>
+<p>起这个标题的原因实在一篇博客里看到“<strong>转移过程十分码农</strong>”，敲完代码深以为然，就借用过来了。</p>
+<p>以下内容仅为插头DP的<strong>一种</strong>应用情形。若要应用于其他题目，需要对过程略作修改。</p>
+<p><strong>前置知识：状态压缩DP、BFS、哈希</strong></p>
+<a id="more"></a>
+<h2 id="问题背景">问题背景</h2>
+<p>给定一张<span class="math inline">\(n \times n\)</span>的<strong>有障碍物</strong>方格纸（<span class="math inline">\(n \leq 8\)</span>），问从<span class="math inline">\((1, 1)\)</span>到<span class="math inline">\((1, n)\)</span>一共有多少条Hamilton路径？（为方便后文叙述，此处做了转置处理）</p>
+<p><img src="/images/image-20200315231540841.png" alt="image-20200315231540841" style="zoom: 40%;" /></p>
+<h2 id="前置概念">前置概念</h2>
+<h3 id="插头和括号匹配">插头和括号匹配</h3>
+<p>把上面的图一切两半，在断口处会有“被切断的路”，这就是这个问题模型里的<strong>插头</strong>。</p>
+<p>为什么会和括号匹配有关系呢？在这张方格纸上画回路（或者Hamilton路，额外加一条边就能构成回路）本质上是在构建一张<strong>平面图</strong>。从断口的一侧看，如果同一条路径与断口的两个交界处看成一组括号，那么在断口上可以得到一组<strong>合法的括号匹配序列</strong>。这个性质可以由反证法得出，此处略去。</p>
+<p><img src="/images/image-20200316000043385.png" alt="image-20200316000043385" style="zoom:50%;" /></p>
+<p>如图，在“断口”的每一侧都能得到一组合法括号匹配序列。因此，我们可以把插头分为两类——<strong>“左括号”插头</strong>和<strong>“右括号”插头</strong>。</p>
+<p><strong>保证括号匹配合法性</strong>是解决题目的关键。</p>
+<h3 id="轮廓线">轮廓线</h3>
+<p>整个搜索过程本质上是一行一行往下扫描的，因此在已遍历部分和未遍历部分中间有一条分界的轮廓线。整个DP的过程其实也就是轮廓线的转移过程。假设当前遍历到的格子坐标为<span class="math inline">\((i, j)\)</span>，那么对应的轮廓线如图：</p>
+<p><img src="/images/image-20200315233958018.png" alt="image-20200315233958018" style="zoom:40%;" /></p>
+<p>不难观察到，若方格纸宽度为<span class="math inline">\(n\)</span>，则轮廓线的长度为<span class="math inline">\(n+1\)</span>。特殊地，当<span class="math inline">\(j = 0\)</span>时，轮廓线形状如图：</p>
+<p><img src="/images/image-20200315234209189.png" alt="image-20200315234209189" style="zoom:40%;" /></p>
+<p>这个特点在后面状态转移的时候会提及。</p>
+<h2 id="状态转移">状态转移</h2>
+<p>为方便后续描述，记<span class="math inline">\(0, 1, 2\)</span>分别为无插头、“左括号”插头（<em>简称左插头</em>）、“右括号”插头（<em>简称右插头</em>）；<span class="math inline">\(\neq 0\)</span>泛指有插头。</p>
+<p>如果轮廓线上的插头状态能用数字<span class="math inline">\(S\)</span>来表示，那么我们就可以用<span class="math inline">\((i, j, S)\)</span>来刻画格子<span class="math inline">\((i, j)\)</span>对应的状态了。对于每一个“单元轮廓线”，其状态有三种：<strong>没有插头</strong>（<span class="math inline">\(0\)</span>）、<strong>有左插头</strong>（<span class="math inline">\(1\)</span>）和<strong>有右插头</strong>（<span class="math inline">\(2\)</span>）。为了方便起见，我们可以使用四进制表示，用位运算的方法加快转移。</p>
+<p>对于位置<span class="math inline">\((i, j)\)</span>上的方格，其状态转移过程如图（以<span class="math inline">\(n = 5\)</span>为例）：</p>
+<p><img src="/images/image-20200316001325572.png" alt="image-20200316001325572" style="zoom:50%;" /></p>
+<p>特殊地，当<span class="math inline">\(j = n\)</span>时，我们发现有一条轮廓线竖直贴到了最右边。这并不是我们期望的状态，所以需要做一下修正：</p>
+<p><img src="/images/image-20200316002332701.png" alt="image-20200316002332701" style="zoom:50%;" /></p>
+<p>注意对应下标的变化，对应到<span class="math inline">\(S\)</span>上需要做移位操作（四进制）。整个过程其实就是一行一行扫描的过程。</p>
+<p>由于上一行的<span class="math inline">\(a&#39;_n\)</span>会被舍去，所以<span class="math inline">\(a&#39;_n \neq 0\)</span>的状态是非法的。转移的时候要注意。</p>
+<p>如果沿用上面的标记，那么初始状态就应该是<span class="math inline">\(a_1 = 1, a_n = 2\)</span>，其余地方均为<span class="math inline">\(0\)</span>。我们给这个状态初始化为<span class="math inline">\(1\)</span>，表示这样的状态有一种可能性。该状态如图所示：</p>
+<p><img src="/images/image-20200316104905653.png" alt="image-20200316104905653" style="zoom:50%;" /></p>
+<p>在上方人为添加一条线，实际上就成了<strong>Hamilton回路问题</strong>。</p>
+<hr />
+<p>接下来的部分，就是非常<strong>码农</strong>的状态转移了。</p>
+<p>啰嗦一句，这里的状态转移就是把当前状态<span class="math inline">\(S\)</span>的情况数累加到下一个状态<span class="math inline">\(S&#39;\)</span>上，前提是通过对当前格子的操作可以使<span class="math inline">\(S\)</span>变成<span class="math inline">\(S’\)</span>。</p>
+<p>由于每次转移只有两个插头发生了变化（忽略换行的情形），我们可以把这些情形全部枚举出来一一讨论（红色代表<span class="math inline">\(S\)</span>，橙色代表<span class="math inline">\(S’\)</span>）：</p>
+<p><img src="/images/image-20200316003249977.png" alt="image-20200316003249977" style="zoom:50%;" /></p>
+<ol type="1">
+<li><p><span class="math inline">\((\neq 0, 0)\)</span>的情形</p>
+<p>只有一个插头的情形，只需要把这个插头（对应的路）拓展一格就好了。我们可以向下做拓展：</p>
+<p><img src="/images/image-20200316113928163.png" alt="image-20200316113928163" style="zoom:50%;" /></p>
+<p>注意拓展后的插头类型和拓展前一致。如果当前<span class="math inline">\(j \neq n\)</span>，还可以向右做拓展：</p>
+<p><img src="/images/image-20200316114228937.png" alt="image-20200316114228937" style="zoom:50%;" /></p>
+<p>写成数学符号的形式就是： <span class="math display">\[
+(\neq 0, 0) \rightarrow \begin{cases}
+(\neq 0, 0) \\
+(0, \neq 0) \text{ if } j \neq n
+\end{cases}
+\]</span></p></li>
+<li><p><span class="math inline">\((0, \neq 0)\)</span>的情形</p>
+<p>和上面的情形一样，可以向下或者向右（若<span class="math inline">\(j \neq n\)</span>）拓展：</p>
+<p><img src="/images/image-20200316115027562.png" alt="image-20200316115027562" style="zoom:50%;" /></p>
+<p>用符号表达就是： <span class="math display">\[
+(0, \neq 0) \rightarrow \begin{cases}
+(\neq 0, 0) \\
+(0, \neq 0) \text{ if } j \neq n
+\end{cases}
+\]</span></p></li>
+<li><p><span class="math inline">\((0, 0)\)</span>的情形</p>
+<p>如果两边都没有插头，那就只能<del>自力更生</del>新建插头了。为了适应后面的转移，定义新插头状态为<span class="math inline">\((1, 2)\)</span>：</p>
+<p><img src="/images/image-20200316115947885.png" alt="image-20200316115947885" style="zoom:50%;" /></p>
+<p>符号表达： <span class="math display">\[
+(0, 0) \rightarrow (1, 2) \text{ if } j \neq n
+\]</span></p></li>
+<li><p><span class="math inline">\((\neq 0, \neq 0)\)</span>的情形</p>
+<p>两个插头的情形，只要把这两个插头接起来就大功告成了？</p>
+<p><img src="/images/image-20200316120553557.png" alt="image-20200316120553557" style="zoom:50%;" /></p>
+<p>符号表达： <span class="math display">\[
+(\neq 0, \neq 0) \rightarrow (0, 0)
+\]</span> <strong>错！</strong></p>
+<p>对于当前题目，我们需要的是一条<strong>Hamilton路</strong>，也就是说中间不能出现其它回路。因此我们需要格外注意<strong>括号配对</strong>的问题。</p>
+<p>下面对四种情况进行分类讨论：</p>
+<ul>
+<li><p><span class="math inline">\((2, 1)\)</span>的情形</p>
+<p>右插头和左插头连接（注意顺序），其实是把两段独立的线接在了一起。没有问题，直接转移。</p></li>
+<li><p><span class="math inline">\((1, 1)\)</span>的情形</p>
+<p>左插头和左插头连接，意味着<strong>从起点出发的线</strong>和一条独立的线接在了一起，作为一条新的<strong>起点出发的</strong>线。于是我们需要对这条线进行一下修正：</p>
+<p><img src="/images/image-20200316122142085.png" alt="image-20200316122142085" style="zoom:50%;" /></p>
+<p>如图所示，右边的这个<span class="math inline">\(1\)</span>有一个对应的<span class="math inline">\(2\)</span>，我们需要将其修改为<span class="math inline">\(1\)</span>。我们可以由<strong>括号匹配法则</strong>向右搜索找到这个<span class="math inline">\(2\)</span>。这样一来，整个轮廓线上的括号匹配合法性也得到了保证。</p></li>
+<li><p><span class="math inline">\((2, 2)\)</span>的情形</p>
+<p>同理，我们需要对左边的<span class="math inline">\(2\)</span>对应的线进行修正。由括号匹配法则向左找到匹配的<span class="math inline">\(1\)</span>并修改成<span class="math inline">\(2\)</span>。</p>
+<p><img src="/images/image-20200316134439530.png" alt="image-20200316134439530" style="zoom:50%;" /></p></li>
+<li><p><span class="math inline">\((1, 2)\)</span>的情形</p>
+<p>左插头和右插头连接，意味着一个回路的闭合。在这道题目里，我们只能在<strong>最后一个遍历到的方格</strong>完成这个操作，其余的情况都不能做转移，需要剪枝。</p></li>
+</ul></li>
+<li><p>障碍物的情形</p>
+<p>障碍物意味着线路需要<strong>绕过</strong>当前方格，因此也需要状态转移。唯一合法的转移只有<span class="math inline">\((0, 0) \rightarrow (0, 0)\)</span>。</p>
+<p><img src="/images/image-20200316135243207.png" alt="image-20200316135243207" style="zoom:50%;" /></p></li>
+</ol>
+<p>最终只需要检查<span class="math inline">\((n + 1, 1, 0)\)</span>这个状态的值就完成了。（应该也可以检查<span class="math inline">\((n, n, ?)\)</span>的状态吧？依实现情况而定）</p>
+<h2 id="空间优化">空间优化</h2>
+<p>DP一般的做法是使用数组（<code>dp[i][j][S]</code>）来进行转移；然而在这道题里，暴力开数组是会MLE的！</p>
+<p>然而经过观察，在整个状态空间里面实际用到的状态数并不多，因此我们可以考虑使用哈希表和队列来维护需要转移的状态（有BFS那味了）。鉴于这里不是ACM，调标准库的<code>unordered_map</code>/<code>HashMap</code>和<code>queue</code>/<code>Queue</code>不香吗？</p>
+<p>由题意，<span class="math inline">\(n \leq 8\)</span>，因此刻画<span class="math inline">\(S\)</span>最多需要18个二进制位，而<span class="math inline">\(i\)</span>和<span class="math inline">\(j\)</span>最多分别需要4个二进制位。<code>int</code>范围刚好存的下，这样就可以把这个三元组转换成整数来做哈希了。</p>
+<p>需要注意的一点是，<strong>状态转移过程中有可能出现多个状态指向一个状态的情形，也就是说一个状态有可能多次入队、进行重复转移！</strong>这就需要考虑到DP的核心——<strong>记忆化搜索</strong>了。同样地，由于无法开数组来标记入队信息，可以使用<code>unordered_set</code>/<code>HashSet</code>来记录已入队的状态，从而规避重复入队的情况。</p>
+<p>接下来只需要像一只码农一样快乐coding就好啦！祝各位dalao早日AC！（逃）</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+        <a target="_blank" class="social-link" href="/atom.xml">
+          <span class="icon">
+            <i class="fa fa-rss"></i>
+          </span>
+
+          <span class="label">RSS</span>
+        </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Notes/" rel="tag"># Notes</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/09/19/CPC-Quadratic-Residue/" rel="prev" title="CPC算法笔记——二次剩余">
+                  <i class="fa fa-chevron-left"></i> CPC算法笔记——二次剩余
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/06/15/ff-cache/" rel="next" title="算法复习笔记：贪心求最优Caching策略">
+                  算法复习笔记：贪心求最优Caching策略 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">T H</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  <script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'none'
+      },
+      options: {
+        renderActions: {
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              const target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js';
+    script.defer = true;
+    document.head.appendChild(script);
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.typesetClear();
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+
+
+</body>
+</html>

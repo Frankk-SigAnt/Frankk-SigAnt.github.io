@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.macromogic.xyz","root":"/","images":"/images","scheme":"Muse","version":"8.2.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
+  </script>
+<meta name="description" content="算法复习笔记：网络流 龟速补上欠下的账ing……\(\DeclareMathOperator{\capa}{cap}\) 写完发现读着好晦涩，但数学不就是这样的吗🌚 基本概念&#x2F;符号表示 为了方便下文叙述，现做如下规定&#x2F;定义： \(G &#x3D; (V, E)\)是有向、无平行边的图，每条边边权为正，其中有一个源点（source）\(s\)和汇（sink）点\(t\)满足：没有一条边以\(t\)为起点，或">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法复习笔记：网络流">
+<meta property="og:url" content="https://blog.macromogic.xyz/2020/08/11/max-flow/index.html">
+<meta property="og:site_name" content="Macromogic Blog">
+<meta property="og:description" content="算法复习笔记：网络流 龟速补上欠下的账ing……\(\DeclareMathOperator{\capa}{cap}\) 写完发现读着好晦涩，但数学不就是这样的吗🌚 基本概念&#x2F;符号表示 为了方便下文叙述，现做如下规定&#x2F;定义： \(G &#x3D; (V, E)\)是有向、无平行边的图，每条边边权为正，其中有一个源点（source）\(s\)和汇（sink）点\(t\)满足：没有一条边以\(t\)为起点，或">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-08-11T15:16:49.000Z">
+<meta property="article:modified_time" content="2021-02-05T15:28:25.949Z">
+<meta property="article:author" content="T H">
+<meta property="article:tag" content="Math">
+<meta property="article:tag" content="Notes">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://blog.macromogic.xyz/2020/08/11/max-flow/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+<title>算法复习笔记：网络流 | Macromogic Blog</title>
+  
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Macromogic Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Macromogic Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E5%A4%8D%E4%B9%A0%E7%AC%94%E8%AE%B0%E7%BD%91%E7%BB%9C%E6%B5%81"><span class="nav-number">1.</span> <span class="nav-text">算法复习笔记：网络流</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E7%AC%A6%E5%8F%B7%E8%A1%A8%E7%A4%BA"><span class="nav-number">1.1.</span> <span class="nav-text">基本概念&#x2F;符号表示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E5%92%8C%E5%89%B2"><span class="nav-number">1.2.</span> <span class="nav-text">「流」和「割」</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E5%A4%A7%E6%B5%81%E6%9C%80%E5%B0%8F%E5%89%B2%E5%AE%9A%E7%90%86"><span class="nav-number">1.3.</span> <span class="nav-text">最大流最小割定理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ford-fulkerson%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.4.</span> <span class="nav-text">Ford-Fulkerson的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%B9%E9%87%8F%E7%BC%A9%E6%94%BEcapacity-scaling%E6%B3%95"><span class="nav-number">1.4.1.</span> <span class="nav-text">“容量缩放”（Capacity-Scaling）法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#edmondskarpdinic%E7%AE%97%E6%B3%95"><span class="nav-number">1.4.2.</span> <span class="nav-text">Edmonds–Karp&#x2F;Dinic算法</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">T H</p>
+  <div class="site-description" itemprop="description">Nothing but dump.</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/macromgic" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;macromgic" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tonyh0411@gmail.com" title="E-Mail → mailto:tonyh0411@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll site-overview-item animated">
+    <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://blog.hackroid.com/" title="https:&#x2F;&#x2F;blog.hackroid.com" rel="noopener" target="_blank">Hackroid</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://blog.gogo.moe/" title="https:&#x2F;&#x2F;blog.gogo.moe" rel="noopener" target="_blank">Gogo</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.whexy.com/" title="https:&#x2F;&#x2F;www.whexy.com" rel="noopener" target="_blank">Whexy</a>
+        </li>
+    </ul>
+  </div>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.macromogic.xyz/2020/08/11/max-flow/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="T H">
+      <meta itemprop="description" content="Nothing but dump.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Macromogic Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          算法复习笔记：网络流
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2020-08-11 23:16:49" itemprop="dateCreated datePublished" datetime="2020-08-11T23:16:49+08:00">2020-08-11</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2021-02-05 23:28:25" itemprop="dateModified" datetime="2021-02-05T23:28:25+08:00">2021-02-05</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Algorithm/" itemprop="url" rel="index"><span itemprop="name">Algorithm</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="算法复习笔记网络流">算法复习笔记：网络流</h1>
+<p>龟速补上欠下的账ing……<span class="math inline">\(\DeclareMathOperator{\capa}{cap}\)</span></p>
+<p>写完发现读着好晦涩，但数学不就是这样的吗🌚</p>
+<h2 id="基本概念符号表示">基本概念/符号表示</h2>
+<p>为了方便下文叙述，现做如下规定/定义：</p>
+<p><span class="math inline">\(G = (V, E)\)</span>是有向、无平行边的图，每条边边权为正，其中有一个<strong>源点（source）</strong><span class="math inline">\(s\)</span>和<strong>汇（sink）点</strong><span class="math inline">\(t\)</span>满足：没有一条边以<span class="math inline">\(t\)</span>为起点，或以<span class="math inline">\(s\)</span>为终点。</p>
+<p>对某边<span class="math inline">\(e \in E\)</span>，记该边边权为<span class="math inline">\(c(e)\)</span>。</p>
+<a id="more"></a>
+<p>若某点集<span class="math inline">\(A \subseteq V\)</span>，规定<span class="math inline">\(E_A^- = (A \times (V \setminus A)) \cap E, E_A^+ = ((V \setminus A) \times A) \cap E\)</span>，即<span class="math inline">\(E_A^-, E_A^+\)</span>分别表示<strong>“离开<span class="math inline">\(A\)</span>”</strong>和<strong>“到达<span class="math inline">\(A\)</span>”</strong>的边集。相似地，对于某一节点<span class="math inline">\(v \in V\)</span>，记<span class="math inline">\(E_v^- = (\{v\} \times (V \setminus \{v\})) \cap E, E_v^+ = ((V \setminus \{v\}) \times \{v\}) \cap E\)</span>。</p>
+<p><span class="math inline">\(A \sqcup B\)</span>表示两个集合<span class="math inline">\(A, B\)</span>的<strong>不交并</strong>。</p>
+<p>若两个点集<span class="math inline">\(A, B \subseteq V\)</span>满足<span class="math inline">\(V = A \sqcup B\)</span>，且有：<span class="math inline">\(u \in A, v \in B\)</span>以及子图<span class="math inline">\(G_A=(A, (A \times A) \cap E), G_B = (B, (B \times B) \cap E)\)</span>分别连通，则称<span class="math inline">\((A, B)\)</span>为<span class="math inline">\(G\)</span>的<strong>割（cut）</strong>（或<strong><span class="math inline">\(s\)</span>-<span class="math inline">\(t\)</span>割</strong>）。</p>
+<p>（用通俗语言描述就是将<span class="math inline">\(G\)</span>一刀“砍”成两半，其中<span class="math inline">\(s\)</span>和<span class="math inline">\(t\)</span>不在同一边）</p>
+<p>一个割的<strong>容量（capacity）</strong>定义为：<span class="math inline">\(\capa(A, B) = \sum_{e \in E_A^-}c(e)\)</span>。</p>
+<p><strong>最小割问题（Minimum Cut Problem）</strong>：求网络流图<span class="math inline">\(G\)</span>容量最小的<span class="math inline">\(s\)</span>-<span class="math inline">\(t\)</span>割。</p>
+<p>若一个函数<span class="math inline">\(f: E \rightarrow \mathbb{R}\)</span>满足：</p>
+<ul>
+<li><p><span class="math inline">\(\forall e \in E,\ 0 \leq f(e) \leq c(e)\)</span>，其中<span class="math inline">\(c(e)\)</span>又称该边的<strong>容量（capacity）</strong>；</p></li>
+<li><p><span class="math inline">\(\forall v \in V \setminus \{s, t\},\ \sum_{e \in E_v^+} f(e) = \sum_{e \in E_v^-} f(e)\)</span>（<strong>流量守恒，Flow Conservation</strong>）</p>
+<p>称<span class="math inline">\(f\)</span>为网络流图<span class="math inline">\(G\)</span>的一个<strong>流（flow）</strong>。其<strong>流量（flow value）</strong>定义为<span class="math inline">\(v(f) = \sum_{e \in E_s^-} f(e)\)</span>。</p></li>
+</ul>
+<p><strong>最大流问题（Maximum Flow Problem）</strong>：求网络流图<span class="math inline">\(G\)</span>流量最大的流。</p>
+<h2 id="流和割">「流」和「割」</h2>
+<p>下面尝试说明：最大流问题和最小割问题是等价的。</p>
+<p>首先引出<strong>流量引理（Flow Value Lemma）</strong>：对于任一流<span class="math inline">\(f\)</span>和任一<span class="math inline">\(s\)</span>-<span class="math inline">\(t\)</span>割<span class="math inline">\((A, B)\)</span>，从<span class="math inline">\(A\)</span>流向<span class="math inline">\(B\)</span>的总流量等于离开<span class="math inline">\(s\)</span>的总流量，即： <span class="math display">\[
+\sum_{e \in E_A^-} f(e) - \sum_{e \in E_A^+} f(e) = v(f)
+\]</span> <em>证明</em>：由流量守恒： <span class="math display">\[
+\begin{align*}
+v(f) &amp;= \sum_{e \in E_s^-} f(e) \\
+&amp;= \sum_{v \in A} \left( \sum_{e \in E_v^-} f(e) - \sum_{e \in E_v^+} f(e) \right) \\
+&amp;= \sum_{e \in E_A^-} f(e) - \sum_{e \in E_A^+} f(e)
+\end{align*}
+\]</span> 由该引理，可以得出流和割的<strong>弱对偶性（Weak Duality）</strong>：对于任一流<span class="math inline">\(f\)</span>和任一<span class="math inline">\(s\)</span>-<span class="math inline">\(t\)</span>割<span class="math inline">\((A, B)\)</span>，<span class="math inline">\(f\)</span>的流量<span class="math inline">\(v(f)\)</span>至多等于<span class="math inline">\((A, B)\)</span>的容量<span class="math inline">\(\capa(A, B)\)</span>。</p>
+<p><em>证明</em>： <span class="math display">\[
+\begin{align*}
+v(f) &amp;=  \sum_{e \in E_A^-} f(e) - \sum_{e \in E_A^+} f(e) \\
+&amp;\leq \sum_{e \in E_A^-} f(e) \\
+&amp;\leq \sum_{e \in E_A^-} c(e) \\
+&amp;= \capa(A, B)
+\end{align*}
+\]</span> <em>引理</em>：若存在流<span class="math inline">\(f\)</span>和割<span class="math inline">\((A, B)\)</span>使得<span class="math inline">\(v(f) = \capa(A, B)\)</span>，则<span class="math inline">\(f\)</span>是一个最大流，而<span class="math inline">\((A, B)\)</span>是一个最小割。</p>
+<p>对于一张网络流图<span class="math inline">\(G\)</span>，若已存在一个流<span class="math inline">\(f\)</span>，我们希望获知是否能对这个流进行修改，比如更改某一条边的流量或发送一条从<span class="math inline">\(s\)</span>到<span class="math inline">\(t\)</span>的新流。因此我们需要一张新图<span class="math inline">\(G_f = (V, E_f)\)</span>来刻画这个流之外“剩下”的状态，其中<span class="math inline">\(G_f\)</span>和<span class="math inline">\(E_f\)</span>分别称作<strong>剩余图（residual graph）</strong>和<strong>剩余边集（set of residual edges）</strong>。</p>
+<p>若<span class="math inline">\(e = (u, v) \in E\)</span>，则它对应的<strong>剩余边（residual edge）</strong>为<span class="math inline">\(e\)</span>本身以及其反向边<span class="math inline">\(e^R = (v, u)\)</span>。这两条边的容量（用<span class="math inline">\(c_f\)</span>表示）分别为： <span class="math display">\[
+\begin{align*}
+c_f(e) &amp;= c(e) - f(e) \\
+c_f(e^R) &amp;= f(e)
+\end{align*}
+\]</span> 为保证剩余图依然是一张网络流图，规定<span class="math inline">\(e\)</span>或<span class="math inline">\(e^R\)</span>在<span class="math inline">\(E_f\)</span>中当且仅当其容量非零。即： <span class="math display">\[
+E_f = \{e \in E \mid f(e) &lt; c(e)\} \cup \{e^R \mid e \in E, f(e) &gt; 0 \}
+\]</span> 若<span class="math inline">\(s, t\)</span>在<span class="math inline">\(G_f\)</span>中依然连通，连接这两个节点的简单路径称为<strong>增广路径（augmenting path）</strong>或<strong>增广路</strong>。增广路上最小的剩余边容量称为<strong>瓶颈容量（bottleneck capacity）</strong>，记作<span class="math inline">\(c_b(G_f, p)\)</span>。若<span class="math inline">\(f\)</span>是<span class="math inline">\(G\)</span>上的一个流，而<span class="math inline">\(p\)</span>是<span class="math inline">\(G_f\)</span>上一条增广路，那么将<span class="math inline">\(p\)</span>加入（augment to）<span class="math inline">\(f\)</span>中得到<span class="math inline">\(f’\)</span>，有<span class="math inline">\(v(f’) = v(f)+c_b(G_f, p)\)</span>。这条性质称作增广路的<strong>主要特性（Key Property）</strong>。一般地，若<span class="math inline">\(f\)</span>是<span class="math inline">\(G\)</span>上的一个流，而<span class="math inline">\(g\)</span>是<span class="math inline">\(G_f\)</span>上的一个流，那么<span class="math inline">\(f+g\)</span>是<span class="math inline">\(G\)</span>上的一个流，其中<span class="math inline">\(v(f+g) = v(f) + v(g)\)</span>，对任意<span class="math inline">\(e \in E\)</span>，有<span class="math inline">\((f+g)(e) = f(e) + g(e) - g(e^R)\)</span>。</p>
+<h2 id="最大流最小割定理">最大流最小割定理</h2>
+<p>由增广路径的主要特性，我们可以获得一个基本的求最大流的思路：</p>
+<blockquote>
+<p>若剩余图中仍存在增广路径，则沿这条路径发送一个流（即加入到已求的流中），重复执行这个步骤直到增广路径不存在。</p>
+</blockquote>
+<p>这个思路称作<strong>Ford-Fulkerson方法</strong>。该方法的正确性由<strong>增广路定理（Augmenting Path Theorem）</strong>得到：流<span class="math inline">\(f\)</span>是最大流当且仅当剩余图中不存在增广路。</p>
+<p>此外，由上述提到的弱对偶性，我们自然地想到：一张图的最大流等于最小割。这就是<strong>最大流最小割定理（Max-flow Min-cut Theorem）</strong>的内容。下面对这两个定理进行证明。</p>
+<p>要证明上述定理，只需说明以下三个命题互相等价：</p>
+<ul>
+<li><span class="math inline">\(a)\)</span> 存在一个割<span class="math inline">\((A, B)\)</span>使得<span class="math inline">\(v(f) = \capa(A, B)\)</span></li>
+<li><span class="math inline">\(b)\)</span> 流<span class="math inline">\(f\)</span>是最大流</li>
+<li><span class="math inline">\(c)\)</span> <span class="math inline">\(f\)</span>对应的剩余图<span class="math inline">\(G_f\)</span>中不存在增广路</li>
+</ul>
+<p><em>证明</em>：</p>
+<p><span class="math inline">\(a) \Rightarrow b)\)</span> 由「弱对偶性」的推论得出（任一流的流量小于等于任一割的容量，则等于割容量的流为最大流）。</p>
+<p><span class="math inline">\(b) \Rightarrow c)\)</span> 只需证明其逆否命题。若<span class="math inline">\(G_f\)</span>中存在增广路<span class="math inline">\(p\)</span>，由增广路的主要特性，可构造<span class="math inline">\(f&#39;\)</span>使得<span class="math inline">\(v(f’) = v(f) + c_b(G_f, p) &gt; v(f)\)</span>，因此<span class="math inline">\(f\)</span>不是最大流。</p>
+<p><span class="math inline">\(c) \Rightarrow a)\)</span> 假设<span class="math inline">\(f\)</span>对应的剩余图<span class="math inline">\(G_f\)</span>中不存在增广路，令<span class="math inline">\(A\)</span>为<span class="math inline">\(s\)</span>在<span class="math inline">\(G_f\)</span>中能到达的点的集合，<span class="math inline">\(B = V \setminus A\)</span>，显然有<span class="math inline">\(s \in A, t \in B\)</span>。由假设知，<span class="math inline">\(G_f\)</span>不存在“离开<span class="math inline">\(A\)</span>”的边，因此有<span class="math inline">\(\forall e \in E_A^-, f(e) = c(e)\)</span>以及<span class="math inline">\(\forall e \in E_A^+, f(e) = 0\)</span>（否则会产生“离开<span class="math inline">\(A\)</span>”的剩余边，和假设矛盾）。于是由流量引理有： <span class="math display">\[
+\begin{align*}
+v(f) &amp;= \sum_{e \in E_A^-} f(e) - \sum_{e \in E_A^+} f(e) \\
+&amp;= \sum_{e \in E_A^-} c(e) \\
+&amp;= \capa(A, B)
+\end{align*}
+\]</span> 至此，增广路定理和最大流最小割定理都能得到证明。</p>
+<h2 id="ford-fulkerson的实现">Ford-Fulkerson的实现</h2>
+<p>下面假定所有边容量均为<span class="math inline">\(\left[1, \sum_{e \in E_s^-} c(e)\right]\)</span>内的正整数，且满足每条边的流量和剩余边容量均为正整数（整性不变性）。</p>
+<p>（如果允许边的容量为无理数，无法证明Ford-Fulkerson算法能在有限时间内停止，或得到实际的最大流。<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Ford–Fulkerson算法#无法终止算法的样例">维基百科</a>上给出了该情形下的一个反例。）</p>
+<p>由于每次流量至少增加<span class="math inline">\(1\)</span>，不难证明Ford-Fulkerson方法能在至多<span class="math inline">\(v(f^*) \leq C\)</span>次迭代内结束，其中<span class="math inline">\(f^*\)</span>为最大流，<span class="math inline">\(C\)</span>为某一正整数（<strong>有穷性</strong>）。</p>
+<p><em>推论</em>：若<span class="math inline">\(C = 1\)</span>，则Ford-Fulkerson运行时间为<span class="math inline">\(\mathrm{O}(mn)\)</span>，其中<span class="math inline">\(m = |E|, n = |V|\)</span>。BFS遍历时间为<span class="math inline">\(\mathrm{O}(m+n)\)</span>，添加增广路耗时<span class="math inline">\(\mathrm{O}(n)\)</span>。</p>
+<p>由整性不变性和增广路定理，不难证明：若网络流图中每条边权均为正整数，则存在一个最大流满足每条边的流量均为正整数。</p>
+<p>现在讨论如何找到增广路并快速求出最大流。</p>
+<h3 id="容量缩放capacity-scaling法">“容量缩放”（Capacity-Scaling）法</h3>
+<p>要想提高寻找增广路并且求得最大流的效率，一个直观的思路就是找到尽可能“<em>短且胖</em>”（即遍数少、瓶颈容量大）的增广路径。</p>
+<p>首先，对于某一容量<span class="math inline">\(\Delta\)</span>，令<span class="math inline">\(G_f(\Delta)\)</span>表示剩余图中边容量不小于<span class="math inline">\(\Delta\)</span>的部分，即<span class="math inline">\(G_f(\Delta) = (V, E_f(\Delta))\)</span>，其中<span class="math inline">\(E_f(\Delta) = \{e \in E_f \mid c_f(e) \geq \Delta\}\)</span>。观察到：<span class="math inline">\(G_f(\Delta)\)</span>中任一增广路的容量一定大于等于<span class="math inline">\(\Delta\)</span>，因而我们可以维护这个<span class="math inline">\(\Delta\)</span>（称为<strong>缩放因子，scaling parameter</strong>），当<span class="math inline">\(G_f(\Delta)\)</span>中不存在增广路时缩小<span class="math inline">\(\Delta\)</span>值，直到<span class="math inline">\(\Delta\)</span>为<span class="math inline">\(1\)</span>为止，此时得到的流就是我们要求的最大流（<span class="math inline">\(G_f(1)\)</span>不存在增广路等价于<span class="math inline">\(G_f\)</span>不存在增广路，则由<strong>增广路定理</strong>显然可得）。</p>
+<p>现实中，为提高运行效率，一般令<span class="math inline">\(\Delta\)</span>初值为<strong>不超过<span class="math inline">\(\max_{e \in E_s^-}\{c(e)\}\)</span>的</strong>最大的<span class="math inline">\(2\)</span>的幂，每次缩放时将<span class="math inline">\(\Delta\)</span>减半，则<span class="math inline">\(\Delta\)</span>始终为<span class="math inline">\(2\)</span>的某一次方，显然也满足上文提到的<strong>整性不变性</strong>。</p>
+<p>下面提出三个引理：</p>
+<p><em>引理1</em>：该方法中有<span class="math inline">\(1+\left\lfloor \log_2 C \right\rfloor\)</span>次迭代，其中<span class="math inline">\(C\)</span>为上文<strong>有穷性</strong>处提到的迭代上界。</p>
+<p><em>证明</em>：由题目假设，显然有<span class="math inline">\(\Delta \leq \max_{e \in E_s^-}\{c(e)\} \leq v(f^*) \leq C\)</span>，则缩放阶段数为<span class="math inline">\(1+\left\lfloor \log_2 \Delta \right\rfloor \leq 1+\left\lfloor \log_2 C \right\rfloor\)</span>。</p>
+<p><em>引理2</em>：令<span class="math inline">\(f\)</span>为一次迭代结束时的流（即，此时<span class="math inline">\(G_f(\Delta)\)</span>不存在增广路），则<span class="math inline">\(v(f^*) \leq v(f) + m\Delta\)</span>。</p>
+<p><em>证明</em>：我们只需证明：此时存在一个割<span class="math inline">\((A, B)\)</span>使得<span class="math inline">\(\capa(A, B) \leq v(f) + m\Delta\)</span>。令<span class="math inline">\(A\)</span>为<span class="math inline">\(s\)</span>在<span class="math inline">\(G_f(\Delta)\)</span>中能到达的点的集合，<span class="math inline">\(B = V \setminus A\)</span>，则和之前证明类似地，有： <span class="math display">\[
+\begin{align*}
+v(f) &amp;= \sum_{e \in E_A^-} f(e) - \sum_{e \in E_A^+} f(e) \\
+&amp;\geq \sum_{e \in E_A^-} \left( c(e) - \Delta \right) - \sum_{e \in E_A^+} \Delta \\
+&amp;\geq \sum_{e \in E_A^-} c(e) - m\Delta \\
+&amp;= \capa(A, B) - m\Delta
+\end{align*}
+\]</span> 对第一个不等号的推导稍作解释：由假设知，<span class="math inline">\(G_f\)</span>中不存在容量大于等于<span class="math inline">\(\Delta\)</span>的增广路；更精确地说，<span class="math inline">\(G_f\)</span>中离开<span class="math inline">\(A\)</span>的剩余边权值均小于<span class="math inline">\(\Delta\)</span>。因此有<span class="math inline">\(\forall e \in E_A^-,\ f(e) \geq c(e) - \Delta\)</span>以及<span class="math inline">\(\forall e \in E_A^+,\ f(e) \leq \Delta\)</span>。</p>
+<p><em>引理3</em>：每一次迭代最多加入<span class="math inline">\(2m\)</span>条增广路。</p>
+<p><em>证明</em>：令<span class="math inline">\(f\)</span>为某一次迭代开始时的流，由<em>引理2</em>有：<span class="math inline">\(v(f^*) \leq v(f) + m \cdot 2\Delta\)</span>，又由算法知，每次增加的流量大小为<span class="math inline">\(\Delta\)</span>，显然可得。</p>
+<p>由上述三条引理知，该算法的时间复杂度为<span class="math inline">\(\mathrm{O}(m^2\log C)\)</span>，其中一共加入<span class="math inline">\(\mathrm{O}(m\log C)\)</span>条增广路，搜索每条增广路（BFS）需要<span class="math inline">\(\mathrm{O}(m)\)</span>的时间。</p>
+<h3 id="edmondskarpdinic算法">Edmonds–Karp/Dinic算法</h3>
+<p>Edmonds–Karp/Dinic算法思路和Ford-Fulkerson一样，不过时间复杂度可以优化至<span class="math inline">\(\mathrm{O}(n^2m)\)</span>。该算法的思想是：<strong>每次用BFS寻找一条增广路，并沿该路径发送一条大小为其瓶颈容量的流；重复该过程直到<span class="math inline">\(s\)</span>和<span class="math inline">\(t\)</span>不连通</strong>。算法有穷性和正确性略去不证，下面对时间复杂度进行简单说明。</p>
+<p>由BFS的性质，每次找到的增广路均为当前剩余图中最短的，且一次迭代的时间复杂度为<span class="math inline">\(\mathrm{O}(mn)\)</span>（由Ford-Fulkerson有穷性推论）。又因为每次发送的流大小为增广路的瓶颈容量，则至少有一条剩余边被“填满”。因此下一条搜索到该边时路径长度一定大于此次迭代的路径，且不超过<span class="math inline">\(n\)</span>。由上述可知每次找到的最短增广路长度是单调递增的，迭代次数为<span class="math inline">\(\mathrm{O}(n)\)</span>。因此总时间复杂度为<span class="math inline">\(\mathrm{O}(n^2m)\)</span>。</p>
+<p>该算法还可以进一步优化（称为<strong>ISAP</strong>）。此外还存在一个忽略流守恒性、从比较“物理”的角度来求解的<strong>预留推进算法</strong>。请参阅<a target="_blank" rel="noopener" href="https://oi-wiki.org/graph/flow/max-flow">OI Wiki</a>。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+        <a target="_blank" class="social-link" href="/atom.xml">
+          <span class="icon">
+            <i class="fa fa-rss"></i>
+          </span>
+
+          <span class="label">RSS</span>
+        </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Math/" rel="tag"># Math</a>
+              <a href="/tags/Notes/" rel="tag"># Notes</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/06/23/fft/" rel="prev" title="算法复习笔记：多项式凭什么能FFT？">
+                  <i class="fa fa-chevron-left"></i> 算法复习笔记：多项式凭什么能FFT？
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/10/30/lab-env-setup/" rel="next" title="远端虚拟机环境配置避雷指南">
+                  远端虚拟机环境配置避雷指南 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">T H</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  <script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'none'
+      },
+      options: {
+        renderActions: {
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              const target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js';
+    script.defer = true;
+    document.head.appendChild(script);
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.typesetClear();
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+
+
+</body>
+</html>
