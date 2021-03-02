@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.3.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.macromogic.xyz","root":"/","images":"/images","scheme":"Muse","version":"8.2.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
+  </script>
+<meta name="description" content="遗传算法中经典的交叉&#x2F;变异算子 在遗传算法中，如何从亲代中产生好的子代个体是至关重要的问题。本文将收录一些经典的、但理解起来略有难度的交叉和变异算子（Crossover and mutation operators），并简要叙述一下其背后的原理。 本文中各种算子的中文名称均为个人直译结果，不代表学术界公认译名（本来也基本没有……）。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="遗传算法中经典的交叉&#x2F;变异算子">
+<meta property="og:url" content="https://blog.macromogic.xyz/2021/02/09/ga-cross-mutate/index.html">
+<meta property="og:site_name" content="Macromogic Blog">
+<meta property="og:description" content="遗传算法中经典的交叉&#x2F;变异算子 在遗传算法中，如何从亲代中产生好的子代个体是至关重要的问题。本文将收录一些经典的、但理解起来略有难度的交叉和变异算子（Crossover and mutation operators），并简要叙述一下其背后的原理。 本文中各种算子的中文名称均为个人直译结果，不代表学术界公认译名（本来也基本没有……）。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-02-08T16:21:43.000Z">
+<meta property="article:modified_time" content="2021-03-02T14:56:52.348Z">
+<meta property="article:author" content="T H">
+<meta property="article:tag" content="Notes">
+<meta property="article:tag" content="EMO">
+<meta property="article:tag" content="Algorithm">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://blog.macromogic.xyz/2021/02/09/ga-cross-mutate/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+<title>遗传算法中经典的交叉/变异算子 | Macromogic Blog</title>
+  
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Macromogic Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Macromogic Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%E4%B8%AD%E7%BB%8F%E5%85%B8%E7%9A%84%E4%BA%A4%E5%8F%89%E5%8F%98%E5%BC%82%E7%AE%97%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">遗传算法中经典的交叉&#x2F;变异算子</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E6%8B%9F01%E4%BA%A4%E5%8F%89"><span class="nav-number">1.1.</span> <span class="nav-text">模拟01交叉</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%BA%E5%BA%8F%E4%BA%A4%E5%8F%89"><span class="nav-number">1.2.</span> <span class="nav-text">顺序交叉</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E9%A1%B9%E5%BC%8F%E5%8F%98%E5%BC%82"><span class="nav-number">1.3.</span> <span class="nav-text">多项式变异</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%AE%E5%88%86%E8%BF%9B%E5%8C%96%E4%B8%AD%E7%9A%84%E4%BA%A4%E5%8F%89%E7%AE%97%E5%AD%90"><span class="nav-number">1.4.</span> <span class="nav-text">差分进化中的交叉算子</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">T H</p>
+  <div class="site-description" itemprop="description">Nothing but dump.</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/macromgic" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;macromgic" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tonyh0411@gmail.com" title="E-Mail → mailto:tonyh0411@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-rss fa-fw"></i>RSS</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll site-overview-item animated">
+    <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://blog.hackroid.com/" title="https:&#x2F;&#x2F;blog.hackroid.com" rel="noopener" target="_blank">Hackroid</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://blog.gogo.moe/" title="https:&#x2F;&#x2F;blog.gogo.moe" rel="noopener" target="_blank">Gogo</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.whexy.com/" title="https:&#x2F;&#x2F;www.whexy.com" rel="noopener" target="_blank">Whexy</a>
+        </li>
+    </ul>
+  </div>
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://blog.macromogic.xyz/2021/02/09/ga-cross-mutate/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="T H">
+      <meta itemprop="description" content="Nothing but dump.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Macromogic Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          遗传算法中经典的交叉/变异算子
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-02-09 00:21:43" itemprop="dateCreated datePublished" datetime="2021-02-09T00:21:43+08:00">2021-02-09</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2021-03-02 22:56:52" itemprop="dateModified" datetime="2021-03-02T22:56:52+08:00">2021-03-02</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Algorithm/" itemprop="url" rel="index"><span itemprop="name">Algorithm</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="遗传算法中经典的交叉变异算子">遗传算法中经典的交叉/变异算子</h1>
+<p>在遗传算法中，如何从亲代中产生好的子代个体是至关重要的问题。本文将收录一些经典的、但理解起来略有难度的交叉和变异算子（Crossover and mutation operators），并简要叙述一下其背后的原理。</p>
+<p>本文中各种算子的中文名称均为个人直译结果，不代表学术界公认译名（本来也基本没有……）。</p>
+<a id="more"></a>
+<h2 id="模拟01交叉">模拟01交叉</h2>
+<p><strong>模拟01交叉（Simulated Binary Crossover, SBX）</strong>将01编码的交叉思想拓展到了实数编码的问题上来。首先我们来重新观察01编码下的单点交叉：给定两个亲代个体<span class="math inline">\(x_1, x_2\)</span>，我们可以写成<span class="math inline">\(n\)</span>位二进制表达形式： <span class="math display">\[
+\begin{align*}
+x_1 &amp;= a_{n-1} \cdot 2^{n-1} + a_{n-2} \cdot 2^{n-2} + \dots + a_1 \cdot 2 + a_0 \\
+x_2 &amp;= b_{n-1} \cdot 2^{n-1} + b_{n-2} \cdot 2^{n-2} + \dots + b_1 \cdot 2 + b_0
+\end{align*}
+\]</span> 设交叉发生在第<span class="math inline">\(k\)</span>位，则上式可以简写成： <span class="math display">\[
+\begin{align*}
+x_1 &amp;= A_1 \cdot 2^k + A_0 \\
+x_2 &amp;= B_1 \cdot 2^k + B_0
+\end{align*}
+\]</span> 由这两个个体，我们可以得到两个子代个体： <span class="math display">\[
+\begin{align*}
+y_1 &amp;= A_1 \cdot 2^k + B_0 \\
+y_2 &amp;= B_1 \cdot 2^k + A_0
+\end{align*}
+\]</span> 观察这两组式子，不难发现<span class="math inline">\((x_1 + x_2) / 2 = (y_1 + y_2) / 2\)</span>，即亲代和子代都关于某一中心点等距。为了量化交叉过程中的距离变化关系，我们引入一个概念——<strong>扩张因子（Spread factor）<span class="math inline">\(\beta\)</span></strong>。它的定义式为： <span class="math display">\[
+\beta = \left|\frac{y_1 - y_2}{x_1 - x_2}\right|
+\]</span> 当<span class="math inline">\(0 \leq \beta &lt; 1\)</span>时，我们称该交叉是<strong>收缩的（Contracting）</strong>；当<span class="math inline">\(\beta &gt; 1\)</span>时，称该交叉为<strong>扩张的（Expanding）</strong>；当<span class="math inline">\(\beta = 1\)</span>时，称该交叉为<strong>稳定的（Stationary）</strong>。在<a target="_blank" rel="noopener" href="https://wpmedia.wolfram.com/uploads/sites/13/2018/02/09-2-2.pdf">这篇论文</a>中，作者讨论并推广了极端情况下（亲代为全0和全1）交叉点的位置<span class="math inline">\(k\)</span>满足某一扩张因子<span class="math inline">\(\beta\)</span>的概率密度函数。令收缩情形下和扩张情形下的概率密度函数分别为<span class="math inline">\(\mathcal{C}(\beta)\)</span>和<span class="math inline">\(\mathcal{E}(\beta)\)</span>，函数在各自定义域上的积分均为0.5。作者给出了两个函数的形式和以下关系式： <span class="math display">\[
+\mathcal{E}(\beta) = \frac{1}{\beta^2}\mathcal{C}(\frac{1}{\beta})
+\]</span> 在实数域上，要想达成模拟01交叉的特点，我们首先要讲实数和01串建立联系。假设存在这样一个线性映射： <span class="math display">\[
+\begin{align*}
+p_i &amp;= mx_i + t \\
+c_i &amp;= my_i + t
+\end{align*}
+\]</span> 我们可以利用该映射将原本01编码的亲代<span class="math inline">\(x_1, x_2\)</span>和子代<span class="math inline">\(y_1, y_2\)</span>映射成实数<span class="math inline">\(p_1, p_2\)</span>以及<span class="math inline">\(c_1, c_2\)</span>。由该映射的线性性，扩张因子这个概念可以很自然地推广到实数编码上。因此我们可以用下式来进行交叉操作： <span class="math display">\[
+\begin{align*}
+c_1 &amp;= 0.5[(1 + \beta) p_1 + (1 - \beta) p_2] \\
+c_2 &amp;= 0.5[(1 - \beta) p_1 + (1 + \beta) p_2]
+\end{align*}
+\]</span> 不难验证该交叉满足式中的扩张因子<span class="math inline">\(\beta\)</span>。<span class="math inline">\(\beta\)</span>的分布由以下式子来模拟，详细不在这里赘述了： <span class="math display">\[
+\mathcal{P}(\beta) = \begin{cases}
+0.5(\eta_c + 1)\beta^{\eta_c},&amp; 0 \leq \beta \leq 1 \\
+0.5(\eta_c + 1)\beta^{-(\eta_c + 2)},&amp; \beta &gt; 1
+\end{cases}
+\]</span> 其中<span class="math inline">\(\eta_c\)</span>称为<strong>分布指数（Distribution index）</strong>。<span class="math inline">\(\eta_c\)</span>越大，<span class="math inline">\(\mathcal{P}(\beta)\)</span>在<span class="math inline">\(\beta = 1\)</span>处的取值就越大，交叉得到的子代也就离亲代越近。在实际运行中，获取<span class="math inline">\(\beta\)</span>的途径是给定一个随机数<span class="math inline">\(u \in [0, 1]\)</span>，然后从上述分布中求得<span class="math inline">\(u\)</span>分位点作为当前（扩张因子对应的）算子。</p>
+<h2 id="顺序交叉">顺序交叉</h2>
+<p><strong>顺序交叉（Order Crossover, OX）</strong>适用于邮差问题等以排列的形式编码的问题。它的特性是在交叉两个排列的同时保持两个片段在各自亲代中的顺序。以单点交叉举例，假设两亲代是<code>[1, 2, 3, 4, 5, 6]</code>和<code>[5, 6, 3, 2, 4, 1]</code>，在下标3处交叉的结果则为<code>[1, 2, 3, 5, 6, 4]</code>和<code>[5, 6, 3, 1, 2, 4]</code>。</p>
+<p>推广到两点交叉的情形，使用Python实现的代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ox</span>(<span class="params">xa, xb</span>):</span></span><br><span class="line">    d = <span class="built_in">len</span>(xa)</span><br><span class="line">    c1, c2 = random.sample(<span class="built_in">range</span>(d), <span class="number">2</span>)</span><br><span class="line">    <span class="keyword">if</span> c1 &gt; c2:</span><br><span class="line">        c1, c2 = c2, c1</span><br><span class="line">        </span><br><span class="line">    u = xa[:]</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(c1, c2):</span><br><span class="line">        h = <span class="number">0</span></span><br><span class="line">        <span class="keyword">while</span> xb[j] != u[h]:</span><br><span class="line">            h = (h + <span class="number">1</span>) % d</span><br><span class="line">        l = (h + <span class="number">1</span>) % d</span><br><span class="line">        <span class="keyword">while</span> l != c2:</span><br><span class="line">            u[h] = u[l]</span><br><span class="line">            h = (h + <span class="number">1</span>) % d</span><br><span class="line">            l = (l + <span class="number">1</span>) % d</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(c1, c2):</span><br><span class="line">        u[j] = xb[j]</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">return</span> u</span><br></pre></td></tr></table></figure>
+<p>简要分析一下，上述代码将<span class="math inline">\(\mathbf{x}^b\)</span>中下标范围在<span class="math inline">\([c_1, c_2)\)</span>里的部分替换到<span class="math inline">\(\mathbf{x}^a\)</span>中得到子代<span class="math inline">\(\mathbf{u}\)</span>。要理解第一个for循环的功能，我们首先把这个序列看成一个循环序列。初始化阶段，令<span class="math inline">\(\mathbf{u} = \mathbf{x}^a\)</span>。对<span class="math inline">\([c_1, c_2)\)</span>里的每个下标<span class="math inline">\(j\)</span>，首先在<span class="math inline">\(\mathbf{u}\)</span>中找到<span class="math inline">\(x_j^b\)</span>出现的下标<span class="math inline">\(h\)</span>，然后对<span class="math inline">\([h, c_2)\)</span>这个区间内的元素做一次“左移”。为了方便理解，我们可以认为此处进行了一次“循环左移”，使得<span class="math inline">\(x_j^b\)</span>这个元素被移动至<span class="math inline">\(c_2-1\)</span>这个位置。如此循环操作后，<span class="math inline">\(\mathbf{x}^b\)</span>中下标范围不在<span class="math inline">\([c_1, c_2)\)</span>里的部分在<span class="math inline">\(\mathbf{u}\)</span>中对应的下标都不在<span class="math inline">\([c_1, c_2)\)</span>里。此时我们只需将<span class="math inline">\(\mathbf{x}^b\)</span>中对应的元素复制进<span class="math inline">\(\mathbf{u}\)</span>中即可。</p>
+<hr />
+<p>下面的内容等看完相关文献再补上……</p>
+<h2 id="多项式变异">多项式变异</h2>
+<p><strong>多项式变异（Polynomial Mutation）</strong>和SBX一样，适用于实数形式编码的问题。</p>
+<h2 id="差分进化中的交叉算子">差分进化中的交叉算子</h2>
+<p><strong>差分进化（Differential Evolution, DE）</strong>算法依靠两个个体的差值和另一选出来的个体组合来搜索新的解。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="followme">
+  <span>Welcome to my other publishing channels</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+        <a target="_blank" class="social-link" href="/atom.xml">
+          <span class="icon">
+            <i class="fa fa-rss"></i>
+          </span>
+
+          <span class="label">RSS</span>
+        </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Notes/" rel="tag"># Notes</a>
+              <a href="/tags/EMO/" rel="tag"># EMO</a>
+              <a href="/tags/Algorithm/" rel="tag"># Algorithm</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/02/05/nsga-ii/" rel="prev" title="演化多目标优化：基于支配的经典算法NSGA-II">
+                  <i class="fa fa-chevron-left"></i> 演化多目标优化：基于支配的经典算法NSGA-II
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/02/18/moead/" rel="next" title="演化多目标优化：基于分解思想的经典算法MOEA/D">
+                  演化多目标优化：基于分解思想的经典算法MOEA/D <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">T H</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  <script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'none'
+      },
+      options: {
+        renderActions: {
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              const target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js';
+    script.defer = true;
+    document.head.appendChild(script);
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.typesetClear();
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+
+
+</body>
+</html>

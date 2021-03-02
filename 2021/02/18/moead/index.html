@@ -23,23 +23,22 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"blog.macromogic.xyz","root":"/","images":"/images","scheme":"Muse","version":"8.2.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}};
   </script>
-<meta name="description" content="置换 置换即\([\![1, n]\!] \triangleq \{1, 2, \dots, n\}\)到自身的1-1变换：\([\![1, n]\!] \rightarrow [\![1, n]\!]\) \(p: i \rightarrow a_i, (a_i \neq a_j, i \neq j)\)， 其中\(a_1, a_2, \dots, a_n\)是\([\![1, n]\!]\)的">
+<meta name="description" content="演化多目标优化：基于分解思想的经典算法MOEA&#x2F;D 前言 在多目标优化问题中，基于帕累托支配关系的最优解集（即帕累托前，PF）很可能不是有限的集合；多数情况下可能是高维空间中某一区域。因此，优化算法的目标就是在有限时间里得到一个能够表现出PF的形状、且分布良好的解集。这也是为什么收敛性和多样性在演化多目标优化算法中是两大重要指标。经典的基于支配关系的算法框架（如NSGA-II等）依靠适应值来维护解">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CPC算法笔记——置换和Polya定理">
-<meta property="og:url" content="https://blog.macromogic.xyz/2019/08/28/CPC-Polya/index.html">
+<meta property="og:title" content="演化多目标优化：基于分解思想的经典算法MOEA&#x2F;D">
+<meta property="og:url" content="https://blog.macromogic.xyz/2021/02/18/moead/index.html">
 <meta property="og:site_name" content="Macromogic Blog">
-<meta property="og:description" content="置换 置换即\([\![1, n]\!] \triangleq \{1, 2, \dots, n\}\)到自身的1-1变换：\([\![1, n]\!] \rightarrow [\![1, n]\!]\) \(p: i \rightarrow a_i, (a_i \neq a_j, i \neq j)\)， 其中\(a_1, a_2, \dots, a_n\)是\([\![1, n]\!]\)的">
+<meta property="og:description" content="演化多目标优化：基于分解思想的经典算法MOEA&#x2F;D 前言 在多目标优化问题中，基于帕累托支配关系的最优解集（即帕累托前，PF）很可能不是有限的集合；多数情况下可能是高维空间中某一区域。因此，优化算法的目标就是在有限时间里得到一个能够表现出PF的形状、且分布良好的解集。这也是为什么收敛性和多样性在演化多目标优化算法中是两大重要指标。经典的基于支配关系的算法框架（如NSGA-II等）依靠适应值来维护解">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2019-08-28T07:05:02.000Z">
-<meta property="article:modified_time" content="2021-02-05T15:28:25.948Z">
+<meta property="article:published_time" content="2021-02-18T04:56:31.000Z">
+<meta property="article:modified_time" content="2021-03-02T14:59:15.894Z">
 <meta property="article:author" content="T H">
-<meta property="article:tag" content="Math">
-<meta property="article:tag" content="CPC">
 <meta property="article:tag" content="Notes">
+<meta property="article:tag" content="EMO">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://blog.macromogic.xyz/2019/08/28/CPC-Polya/">
+<link rel="canonical" href="https://blog.macromogic.xyz/2021/02/18/moead/">
 
 
 <script class="page-configurations">
@@ -51,7 +50,7 @@
     lang   : 'en'
   };
 </script>
-<title>CPC算法笔记——置换和Polya定理 | Macromogic Blog</title>
+<title>演化多目标优化：基于分解思想的经典算法MOEA/D | Macromogic Blog</title>
   
 
 
@@ -162,7 +161,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%AE%E6%8D%A2"><span class="nav-number">1.</span> <span class="nav-text">置换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%AE%E6%8D%A2%E7%9A%84%E4%B9%98%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">置换的乘法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%AE%E6%8D%A2%E7%BE%A4"><span class="nav-number">3.</span> <span class="nav-text">置换群</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#polya%E5%AE%9A%E7%90%86"><span class="nav-number">4.</span> <span class="nav-text">Polya定理</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BC%94%E5%8C%96%E5%A4%9A%E7%9B%AE%E6%A0%87%E4%BC%98%E5%8C%96%E5%9F%BA%E4%BA%8E%E5%88%86%E8%A7%A3%E6%80%9D%E6%83%B3%E7%9A%84%E7%BB%8F%E5%85%B8%E7%AE%97%E6%B3%95moead"><span class="nav-number">1.</span> <span class="nav-text">演化多目标优化：基于分解思想的经典算法MOEA&#x2F;D</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E5%88%86%E8%A7%A3%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">常见分解方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#moead%E4%B8%BB%E4%BD%93%E6%A1%86%E6%9E%B6"><span class="nav-number">1.3.</span> <span class="nav-text">MOEA&#x2F;D主体框架</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -254,7 +253,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://blog.macromogic.xyz/2019/08/28/CPC-Polya/">
+    <link itemprop="mainEntityOfPage" href="https://blog.macromogic.xyz/2021/02/18/moead/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -267,7 +266,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          CPC算法笔记——置换和Polya定理
+          演化多目标优化：基于分解思想的经典算法MOEA/D
         </h1>
 
         <div class="post-meta-container">
@@ -278,14 +277,14 @@
       </span>
       <span class="post-meta-item-text">Posted on</span>
 
-      <time title="Created: 2019-08-28 15:05:02" itemprop="dateCreated datePublished" datetime="2019-08-28T15:05:02+08:00">2019-08-28</time>
+      <time title="Created: 2021-02-18 12:56:31" itemprop="dateCreated datePublished" datetime="2021-02-18T12:56:31+08:00">2021-02-18</time>
     </span>
       <span class="post-meta-item">
         <span class="post-meta-item-icon">
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">Edited on</span>
-        <time title="Modified: 2021-02-05 23:28:25" itemprop="dateModified" datetime="2021-02-05T23:28:25+08:00">2021-02-05</time>
+        <time title="Modified: 2021-03-02 22:59:15" itemprop="dateModified" datetime="2021-03-02T22:59:15+08:00">2021-03-02</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -293,7 +292,7 @@
       </span>
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Math/" itemprop="url" rel="index"><span itemprop="name">Math</span></a>
+          <a href="/categories/EMO/" itemprop="url" rel="index"><span itemprop="name">EMO</span></a>
         </span>
     </span>
 
@@ -307,30 +306,31 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="置换">置换</h2>
-<p><strong>置换</strong>即<span class="math inline">\([\![1, n]\!] \triangleq \{1, 2, \dots, n\}\)</span>到自身的1-1变换：<span class="math inline">\([\![1, n]\!] \rightarrow [\![1, n]\!]\)</span></p>
-<p><span class="math inline">\(p: i \rightarrow a_i, (a_i \neq a_j, i \neq j)\)</span>，</p>
-<p>其中<span class="math inline">\(a_1, a_2, \dots, a_n\)</span>是<span class="math inline">\([\![1, n]\!]\)</span>的一个<strong>全排列</strong>，</p>
-<p>称此置换为<span class="math inline">\(n\)</span>阶置换，记为：</p>
-<p><span class="math inline">\(p=\pmatrix{1&amp;2&amp;\cdots&amp;n\\a_1&amp;a_2&amp;\cdots&amp;a_n}\)</span></p>
-<p><span class="math inline">\(n\)</span>阶置换共有<span class="math inline">\(n!\)</span>个。</p>
+        <h1 id="演化多目标优化基于分解思想的经典算法moead">演化多目标优化：基于分解思想的经典算法MOEA/D</h1>
+<h2 id="前言">前言</h2>
+<p>在多目标优化问题中，基于帕累托支配关系的最优解集（即帕累托前，PF）很可能不是有限的集合；多数情况下可能是高维空间中某一区域。因此，优化算法的目标就是在有限时间里得到一个能够表现出PF的形状、且分布良好的解集。这也是为什么收敛性和多样性在演化多目标优化算法中是两大重要指标。经典的基于支配关系的算法框架（如<a href="https://blog.macromogic.xyz/2021/02/05/nsga-ii/">NSGA-II</a>等）依靠适应值来维护解集的多样性，避免边缘解的丢失以及解过于密集的现象。而MOEA/D的提出，将分解的思想重新带入了演化多目标优化的领域来。</p>
 <a id="more"></a>
-<h2 id="置换的乘法">置换的乘法</h2>
-<p>定义<span class="math inline">\(p_1p_2\)</span>表示<strong>先做<span class="math inline">\(p_1\)</span>的置换，再做<span class="math inline">\(p_2\)</span>的置换</strong>，如：</p>
-<p><span class="math inline">\(p_1=\pmatrix{1&amp;2&amp;3&amp;4\\3&amp;1&amp;2&amp;4}, p_2=\pmatrix{1&amp;2&amp;3&amp;4\\4&amp;3&amp;2&amp;1}\)</span></p>
-<p>则</p>
-<p><span class="math inline">\(p_1p_2=\pmatrix{1&amp;2&amp;3&amp;4\\3&amp;1&amp;2&amp;4}\cdot\pmatrix{1&amp;2&amp;3&amp;4\\4&amp;3&amp;2&amp;1}=\pmatrix{1&amp;2&amp;3&amp;4\\3&amp;1&amp;2&amp;4}\cdot\pmatrix{3&amp;1&amp;2&amp;4\\2&amp;4&amp;3&amp;1}=\pmatrix{1&amp;2&amp;3&amp;4\\2&amp;4&amp;3&amp;1}\)</span></p>
-<p>即</p>
-<p><span class="math inline">\(p_1=\pmatrix{1&amp;2&amp;\cdots&amp;n\\a_1&amp;a_2&amp;\cdots&amp;a_n}\)</span></p>
-<p><span class="math inline">\(p_2=\pmatrix{1&amp;2&amp;\cdots&amp;n\\b_1&amp;b_2&amp;\cdots&amp;b_n}=\pmatrix{a_1&amp;a_2&amp;\cdots&amp;a_n\\b_1(a_1)&amp;b_2(a_2)&amp;\cdots&amp;c_n(a_n)}\)</span></p>
-<p><span class="math inline">\(\therefore p_1p_2=\pmatrix{1&amp;2&amp;\cdots&amp;n\\b_1(a_1)&amp;b_2(a_2)&amp;\cdots&amp;b_n(a_n)}\)</span></p>
-<h2 id="置换群">置换群</h2>
-<p><span class="math inline">\([\![1, n]\!]\)</span>上所有置换按上述乘法构成一个<strong>群</strong>，即满足<strong>封闭性</strong>、<strong>结合律</strong>、<strong>有单位元</strong> <span class="math inline">\(p_1=\pmatrix{1&amp;1&amp;\cdots&amp;1\\ 1&amp;1&amp;\cdots&amp;1}\)</span>、<strong>有逆元</strong> <span class="math inline">\(p^{-1}=\pmatrix{a_1&amp;a_2&amp;\cdots&amp;a_n\\1&amp;2&amp;\cdots&amp;n}\)</span>，我们称此群为<strong>n个对象的对称群</strong>，记为<span class="math inline">\(S_n\)</span>。</p>
-<p><span class="math inline">\(S_n\)</span>的任意一个子群称为<strong>置换群</strong>。</p>
-<h2 id="polya定理">Polya定理</h2>
-<p>设<span class="math inline">\(\bar G\)</span>是n个对象的一个置换群，用m种颜色对这n个对象染色，则不同的染色方案数为： <span class="math display">\[
-L=\frac{1}{|\overline G|}\sum_{i=1}^{g}m^{c(\overline{P_i})}
-\]</span> 其中<span class="math inline">\(\overline G=\{\overline{P_1}, \overline{P_2}, \dots, \overline{P_g}\}\)</span>，<span class="math inline">\(c(\overline{P_k})\)</span>为<span class="math inline">\(\overline{P_k}\)</span>的循环节数。</p>
+<h2 id="常见分解方法">常见分解方法</h2>
+<p>分解思想的核心是将一个多目标问题转化成一系列单目标问题来同时优化。这其中涉及到各种标量化的方法，如<strong>加权求和（Weighted Sum）法</strong>、<strong>Tchebycheff法</strong>、<strong>边界交点（Boundary Intersection, BI）法</strong>等。加权求和的思想很简单，假设原目标函数为<span class="math inline">\(\mathbf{F} = (F_1, F_2, \dots, F_n)^T\)</span>，给定一个权重向量<span class="math inline">\(\boldsymbol{\lambda} = (\lambda_1, \lambda_2, \dots, \lambda_n)^T\)</span>，其中<span class="math inline">\(\forall i = 1, 2, \dots, n,\ \lambda_i \geq 0\)</span>且<span class="math inline">\(\sum_{i=1}^n \lambda_i = 1\)</span>，则新的目标函数为该解各个分量的加权和，即： <span class="math display">\[
+g^{\mathrm{ws}}(\mathbf{x} \mid \boldsymbol{\lambda}) = \sum_{i=1}^n\lambda_iF_i(\mathbf{x})
+\]</span> Tchebycheff法基于一个参考向量<span class="math inline">\(\mathbf{z}\)</span>和一个权重向量<span class="math inline">\(\boldsymbol{\lambda}\)</span>，其中<span class="math inline">\(\mathbf{z}\)</span>每个分量为决策空间中对应分量上的最值。对应的目标函数为该解到<span class="math inline">\(\mathbf{z}\)</span>的“加权Tchebycheff距离”，即： <span class="math display">\[
+g^{\mathrm{te}}(\mathbf{x} \mid \boldsymbol{\lambda}, \mathbf{z}) = \max_{1 \leq i \leq n} \{ \lambda_i \left\lvert F_i(\mathbf{x}) - z_i \right\rvert \}
+\]</span> BI法同样需要参考向量<span class="math inline">\(\mathbf{z}\)</span>和权重向量<span class="math inline">\(\boldsymbol{\lambda}\)</span>，其目的是尽可能将答案向<span class="math inline">\(\mathbf{z}\)</span>的方向“拉拽”，因而对应的目标函数为： <span class="math display">\[
+\begin{align*}
+g^{\mathrm{bi}}(\mathbf{x} \mid \boldsymbol{\lambda}, \mathbf{z}) &amp;= d \\
+\text{s.t. }\ \ \qquad \mathbf{z} - \mathbf{F}(\mathbf{x}) &amp;= d\boldsymbol{\lambda}
+\end{align*}
+\]</span> BI法的一个缺陷在于<span class="math inline">\(\mathbf{F}(\mathbf{x}), \mathbf{z}, \boldsymbol{\lambda}\)</span>需要满足上式中的共线条件；而该约束在多数情形下难以维护。因此，我们可以考虑引入一个带<strong>惩罚参数（Penalty parameter）<span class="math inline">\(\theta\)</span></strong>的版本，即： <span class="math display">\[
+g^{\mathrm{pbi}}(\mathbf{x} \mid \boldsymbol{\lambda}, \mathbf{z}) = d_1 + \theta d_2
+\]</span> 其中<span class="math inline">\(d_1, d_2\)</span>分别表示<span class="math inline">\(\mathbf{F}(\mathbf{x})\)</span>和<span class="math inline">\(\mathbf{z}\)</span>的距离在<span class="math inline">\(\boldsymbol{\lambda}\)</span>上的投影、以及<span class="math inline">\(\mathbf{F}(\mathbf{x})\)</span>到<span class="math inline">\(\boldsymbol{\lambda}\)</span>所在直线的距离： <span class="math display">\[
+\begin{align*}
+d_1 &amp;= \frac{\left\lVert (\mathbf{z} - \mathbf{F}(\mathbf{x}))^T \boldsymbol{\lambda} \right\rVert}{\left\lVert \boldsymbol{\lambda} \right\rVert} \\
+d_2 &amp;= \left\lVert \mathbf{F}(\mathbf{x}) - (\mathbf{z} - d_1\boldsymbol{\lambda}) \right\rVert
+\end{align*}
+\]</span> 该方法也被称作<strong>广义BI法</strong>、或者<strong>PBI（Penalty-based BI）法</strong>。相比上述的Tchebycheff法，PBI法的优势在于它的分布更加均匀，且更能将支配解区分出来。</p>
+<h2 id="moead主体框架">MOEA/D主体框架</h2>
+<p>由上述叙述可知，基于分解思想的算法主要是将多目标问题转化成单目标问题来辅助解决，且最优解的位置高度依赖选取的权重向量。若我们选取多个权重向量，那么问题将会变成一系列相对独立的单目标问题，每个问题对应一个权重向量；且若权重向量的选取合理，最后得到的PF也是良好分布的。</p>
+<p>初始化阶段，在选取完一系列权重向量<span class="math inline">\(\boldsymbol{\lambda}^{(1)}, \boldsymbol{\lambda}^{(2)}, \dots, \boldsymbol{\lambda}^{(N)}\)</span>后，我们首先找到每个权重向量的<span class="math inline">\(T\)</span>个“近邻”，其中第<span class="math inline">\(i\)</span>个权重向量<span class="math inline">\(\boldsymbol{\lambda}^{(i)}\)</span>的近邻对应的下标集合记作<span class="math inline">\(B^{(i)}\)</span>，对应问题的答案记为<span class="math inline">\(\mathbf{x}^{(i)}\)</span>。在演化过程中，<span class="math inline">\(\boldsymbol{\lambda}^{(i)}\)</span>对应的单目标问题的下一代个体由下标在<span class="math inline">\(B^{(i)}\)</span>中的个体杂交产生，得到的新个体将被用于更新参考向量<span class="math inline">\(\mathbf{z}\)</span>、该问题对应的答案<span class="math inline">\(\mathbf{x}^{(i)}\)</span>以及“近邻向量”对应问题的答案<span class="math inline">\(\mathbf{x}^{(j)}\ (j \in B^{(i)})\)</span>。整个问题的PF由一个独立的外部缓存维护。</p>
 
     </div>
 
@@ -357,23 +357,19 @@ L=\frac{1}{|\overline G|}\sum_{i=1}^{g}m^{c(\overline{P_i})}
 </div>
 
           <div class="post-tags">
-              <a href="/tags/Math/" rel="tag"># Math</a>
-              <a href="/tags/CPC/" rel="tag"># CPC</a>
               <a href="/tags/Notes/" rel="tag"># Notes</a>
+              <a href="/tags/EMO/" rel="tag"># EMO</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2019/08/23/Hexo-Setup/" rel="prev" title="跌跌撞撞的Hexo小记">
-                  <i class="fa fa-chevron-left"></i> 跌跌撞撞的Hexo小记
+                <a href="/2021/02/09/ga-cross-mutate/" rel="prev" title="遗传算法中经典的交叉/变异算子">
+                  <i class="fa fa-chevron-left"></i> 遗传算法中经典的交叉/变异算子
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2019/09/19/CPC-Quadratic-Residue/" rel="next" title="CPC算法笔记——二次剩余">
-                  CPC算法笔记——二次剩余 <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>

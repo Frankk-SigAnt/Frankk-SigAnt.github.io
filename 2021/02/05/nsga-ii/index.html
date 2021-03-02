@@ -31,7 +31,7 @@
 <meta property="og:description" content="演化多目标优化：基于支配的经典算法NSGA-II 最近在学习并尝试实现演化多目标优化的相关算法，希望我能通过这篇博客把算法了解得更加透彻orz 基础篇 帕累托支配 在多目标优化领域，一般来说，决策变量和目标都是由多个元素组成的，而不同目标之间往往难以比较。如果将决策&#x2F;目标视作一个向量\(\mathbf{x}\)，我们用帕累托支配（Pareto dominance）来刻画向量间的关系。对于两个\(n">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-02-05T15:36:14.000Z">
-<meta property="article:modified_time" content="2021-02-05T15:38:24.865Z">
+<meta property="article:modified_time" content="2021-02-18T08:06:11.953Z">
 <meta property="article:author" content="T H">
 <meta property="article:tag" content="Notes">
 <meta property="article:tag" content="EMO">
@@ -174,7 +174,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives">
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">14</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -187,7 +187,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -276,10 +276,16 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2021-02-05 23:36:14 / Modified: 23:38:24" itemprop="dateCreated datePublished" datetime="2021-02-05T23:36:14+08:00">2021-02-05</time>
+      <time title="Created: 2021-02-05 23:36:14" itemprop="dateCreated datePublished" datetime="2021-02-05T23:36:14+08:00">2021-02-05</time>
     </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">Edited on</span>
+        <time title="Modified: 2021-02-18 16:06:11" itemprop="dateModified" datetime="2021-02-18T16:06:11+08:00">2021-02-18</time>
+      </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-folder"></i>
@@ -304,7 +310,7 @@
 <p>最近在学习并尝试实现演化多目标优化的相关算法，希望我能通过这篇博客把算法了解得更加透彻orz</p>
 <h2 id="基础篇">基础篇</h2>
 <h3 id="帕累托支配">帕累托支配</h3>
-<p>在多目标优化领域，一般来说，决策变量和目标都是由多个元素组成的，而不同目标之间往往难以比较。如果将决策/目标视作一个向量<span class="math inline">\(\mathbf{x}\)</span>，我们用<strong>帕累托支配（Pareto dominance）</strong>来刻画向量间的关系。对于两个<span class="math inline">\(n\)</span>维向量<span class="math inline">\(\mathbf{x}^{(1)}, \mathbf{x}^{(2)}\)</span>，我们称<span class="math inline">\(\mathbf{x}^{(1)}\)</span>支配<span class="math inline">\(\mathbf{x}^{(2)}\)</span>（记作<span class="math inline">\(\mathbf{x}^{(1)} \prec \mathbf{x}^{(2)}\)</span>）当且仅当<span class="math inline">\(\forall 1 \leq i \leq n,\ \mathbf{x}^{(1)}_i \leq \mathbf{x}^{(2)}_i\)</span>，且<span class="math inline">\(\exists 1 \leq i \leq n,\ \mathbf{x}^{(1)}_i &lt; \mathbf{x}^{(2)}_i\)</span>。</p>
+<p>在多目标优化领域，一般来说，决策变量和目标都是由多个元素组成的，而不同目标之间往往难以比较。如果将决策/目标视作一个向量<span class="math inline">\(\mathbf{x}\)</span>，我们用<strong>帕累托支配（Pareto dominance）</strong>来刻画向量间的关系。对于两个<span class="math inline">\(n\)</span>维向量<span class="math inline">\(\mathbf{x}^{(1)} = (x^{(1)}_1, \dots, x^{(1)}_n)^T, \mathbf{x}^{(2)} = (x^{(2)}_1, \dots, x^{(2)}_n)^T\)</span>，我们称<span class="math inline">\(\mathbf{x}^{(1)}\)</span>支配<span class="math inline">\(\mathbf{x}^{(2)}\)</span>（记作<span class="math inline">\(\mathbf{x}^{(1)} \prec \mathbf{x}^{(2)}\)</span>）当且仅当<span class="math inline">\(\forall 1 \leq i \leq n,\ x^{(1)}_i \leq x^{(2)}_i\)</span>，且<span class="math inline">\(\exists 1 \leq i \leq n,\ x^{(1)}_i &lt; x^{(2)}_i\)</span>。</p>
 <a id="more"></a>
 <p>在最大化问题的上下文中，上述不等号需反向。算法最终得出的互不支配的解集，称为<strong>帕累托集（Pareto set, PS）</strong>，对应的目标集合称为<strong>帕累托前（Pareto front, PF）</strong>。PF的形状和收敛性往往被用来作为评估算法的重要指标。</p>
 <h3 id="非支配排序">非支配排序</h3>
@@ -316,7 +322,7 @@
 <figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">% 该函数接受K、N以及个体的适应值（可能有多个），并返回选择的下标</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">index</span> = <span class="title">TournamentSelection</span><span class="params">(K, N, varargin)</span></span></span><br><span class="line">    <span class="comment">% 将适应值整理成一列cell并比较得到rank</span></span><br><span class="line">    varargin  = <span class="built_in">cellfun</span>(@(S)<span class="built_in">reshape</span>(S, [], <span class="number">1</span>), varargin, <span class="string">&#x27;UniformOutput&#x27;</span>, <span class="built_in">false</span>);</span><br><span class="line">    [~, rank] = <span class="built_in">sortrows</span>([varargin&#123;:&#125;]);</span><br><span class="line">    [~, rank] = <span class="built_in">sort</span>(rank);</span><br><span class="line">    <span class="comment">% 生成一个K*N的随机下标矩阵</span></span><br><span class="line">    Parents   = randi(<span class="built_in">length</span>(varargin&#123;<span class="number">1</span>&#125;), K, N);</span><br><span class="line">    <span class="comment">% 比较每一列的rank值，得到最小值下标并返回</span></span><br><span class="line">    [~, best] = <span class="built_in">min</span>(rank(Parents), [], <span class="number">1</span>);</span><br><span class="line">    index     = Parents(best + (<span class="number">0</span>:N<span class="number">-1</span>)*K);</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
 <p>代码中连续两次sort的原理参考<a href="https://blog.macromogic.xyz/2021/02/04/permutation-rank/">这篇博客</a>。最后一行利用了一个MATLAB的语法糖，有兴趣的读者可以自行实验。</p>
 <h3 id="遗传算法的交叉和变异">遗传算法的交叉和变异</h3>
-<p>此处暂时留空。</p>
+<p>感觉这一部分适合用一篇单独的文章来记录……具体内容请移步<a href="https://blog.macromogic.xyz/2021/02/09/ga-cross-mutate/">这里</a>。</p>
 <h2 id="nsga-ii的主体框架">NSGA-II的主体框架</h2>
 <p>NSGA-II（Non-dominated Sorting Genetic Algorithm II），顾名思义，是基于非支配排序进行选择的算法。对每一代个体，会先利用竞争选择来选出亲代个体进行交叉和变异，然后将当前代和新个体放在一起进行非支配排序并选出下一代个体。在这个选择过程中，有可能会出现“某一个非支配子集的个体选不完”的情况，此时就需要利用<strong>拥挤距离（Crowding distance）</strong>来做进一步选择。</p>
 <p>在某个非支配子集中，一个个体的拥挤距离被定义为：每个维度上将这个个体“夹住”的两个个体的“归一化差值”。“归一化差值”指的是这两个个体在该维度上分量差的绝对值除以这个维度上所有个体的最大值和最小值的差。如果某个体在某一维度上已经是最大/最小值，那该个体的拥挤距离为无穷大。基于拥挤距离的选择将选出拥挤距离最大的若干个体来维持整个解集的多样性，和其它个体距离过近的个体将会被剔除。</p>
@@ -360,6 +366,9 @@
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/2021/02/09/ga-cross-mutate/" rel="next" title="遗传算法中经典的交叉/变异算子">
+                  遗传算法中经典的交叉/变异算子 <i class="fa fa-chevron-right"></i>
+                </a>
             </div>
           </div>
     </footer>

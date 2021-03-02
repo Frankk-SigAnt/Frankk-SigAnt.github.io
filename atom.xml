@@ -6,7 +6,7 @@
   <link href="https://blog.macromogic.xyz/atom.xml" rel="self"/>
   
   <link href="https://blog.macromogic.xyz/"/>
-  <updated>2021-02-05T15:38:24.865Z</updated>
+  <updated>2021-03-02T14:59:15.894Z</updated>
   <id>https://blog.macromogic.xyz/</id>
   
   <author>
@@ -17,18 +17,66 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>演化多目标优化：基于分解思想的经典算法MOEA/D</title>
+    <link href="https://blog.macromogic.xyz/2021/02/18/moead/"/>
+    <id>https://blog.macromogic.xyz/2021/02/18/moead/</id>
+    <published>2021-02-18T04:56:31.000Z</published>
+    <updated>2021-03-02T14:59:15.894Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;演化多目标优化基于分解思想的经典算法moead&quot;&gt;演化多目标优化：基于分解思想的经典算法MOEA/D&lt;/h1&gt;
+&lt;h2 id=&quot;前言&quot;&gt;前言&lt;/h2&gt;
+&lt;p&gt;在多目标优化问题中，基于帕累托支配关系的最优解集（即帕累托前，PF）很可能不是有限的集合；多数情况下可能是高维空间中某一区域。因此，优化算法的目标就是在有限时间里得到一个能够表现出PF的形状、且分布良好的解集。这也是为什么收敛性和多样性在演化多目标优化算法中是两大重要指标。经典的基于支配关系的算法框架（如&lt;a href=&quot;https://blog.macromogic.xyz/2021/02/05/nsga-ii/&quot;&gt;NSGA-II&lt;/a&gt;等）依靠适应值来维护解集的多样性，避免边缘解的丢失以及解过于密集的现象。而MOEA/D的提出，将分解的思想重新带入了演化多目标优化的领域来。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="EMO" scheme="https://blog.macromogic.xyz/categories/EMO/"/>
+    
+    
+    <category term="Notes" scheme="https://blog.macromogic.xyz/tags/Notes/"/>
+    
+    <category term="EMO" scheme="https://blog.macromogic.xyz/tags/EMO/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>遗传算法中经典的交叉/变异算子</title>
+    <link href="https://blog.macromogic.xyz/2021/02/09/ga-cross-mutate/"/>
+    <id>https://blog.macromogic.xyz/2021/02/09/ga-cross-mutate/</id>
+    <published>2021-02-08T16:21:43.000Z</published>
+    <updated>2021-03-02T14:56:52.348Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;遗传算法中经典的交叉变异算子&quot;&gt;遗传算法中经典的交叉/变异算子&lt;/h1&gt;
+&lt;p&gt;在遗传算法中，如何从亲代中产生好的子代个体是至关重要的问题。本文将收录一些经典的、但理解起来略有难度的交叉和变异算子（Crossover and mutation operators），并简要叙述一下其背后的原理。&lt;/p&gt;
+&lt;p&gt;本文中各种算子的中文名称均为个人直译结果，不代表学术界公认译名（本来也基本没有……）。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="Algorithm" scheme="https://blog.macromogic.xyz/categories/Algorithm/"/>
+    
+    
+    <category term="Notes" scheme="https://blog.macromogic.xyz/tags/Notes/"/>
+    
+    <category term="EMO" scheme="https://blog.macromogic.xyz/tags/EMO/"/>
+    
+    <category term="Algorithm" scheme="https://blog.macromogic.xyz/tags/Algorithm/"/>
+    
+  </entry>
+  
+  <entry>
     <title>演化多目标优化：基于支配的经典算法NSGA-II</title>
     <link href="https://blog.macromogic.xyz/2021/02/05/nsga-ii/"/>
     <id>https://blog.macromogic.xyz/2021/02/05/nsga-ii/</id>
     <published>2021-02-05T15:36:14.000Z</published>
-    <updated>2021-02-05T15:38:24.865Z</updated>
+    <updated>2021-02-18T08:06:11.953Z</updated>
     
     
     <summary type="html">&lt;h1 id=&quot;演化多目标优化基于支配的经典算法nsga-ii&quot;&gt;演化多目标优化：基于支配的经典算法NSGA-II&lt;/h1&gt;
 &lt;p&gt;最近在学习并尝试实现演化多目标优化的相关算法，希望我能通过这篇博客把算法了解得更加透彻orz&lt;/p&gt;
 &lt;h2 id=&quot;基础篇&quot;&gt;基础篇&lt;/h2&gt;
 &lt;h3 id=&quot;帕累托支配&quot;&gt;帕累托支配&lt;/h3&gt;
-&lt;p&gt;在多目标优化领域，一般来说，决策变量和目标都是由多个元素组成的，而不同目标之间往往难以比较。如果将决策/目标视作一个向量&lt;span class=&quot;math inline&quot;&gt;\(\mathbf{x}\)&lt;/span&gt;，我们用&lt;strong&gt;帕累托支配（Pareto dominance）&lt;/strong&gt;来刻画向量间的关系。对于两个&lt;span class=&quot;math inline&quot;&gt;\(n\)&lt;/span&gt;维向量&lt;span class=&quot;math inline&quot;&gt;\(\mathbf{x}^{(1)}, \mathbf{x}^{(2)}\)&lt;/span&gt;，我们称&lt;span class=&quot;math inline&quot;&gt;\(\mathbf{x}^{(1)}\)&lt;/span&gt;支配&lt;span class=&quot;math inline&quot;&gt;\(\mathbf{x}^{(2)}\)&lt;/span&gt;（记作&lt;span class=&quot;math inline&quot;&gt;\(\mathbf{x}^{(1)} \prec \mathbf{x}^{(2)}\)&lt;/span&gt;）当且仅当&lt;span class=&quot;math inline&quot;&gt;\(\forall 1 \leq i \leq n,\ \mathbf{x}^{(1)}_i \leq \mathbf{x}^{(2)}_i\)&lt;/span&gt;，且&lt;span class=&quot;math inline&quot;&gt;\(\exists 1 \leq i \leq n,\ \mathbf{x}^{(1)}_i &amp;lt; \mathbf{x}^{(2)}_i\)&lt;/span&gt;。&lt;/p&gt;</summary>
+&lt;p&gt;在多目标优化领域，一般来说，决策变量和目标都是由多个元素组成的，而不同目标之间往往难以比较。如果将决策/目标视作一个向量&lt;span class=&quot;math inline&quot;&gt;\(\mathbf{x}\)&lt;/span&gt;，我们用&lt;strong&gt;帕累托支配（Pareto dominance）&lt;/strong&gt;来刻画向量间的关系。对于两个&lt;span class=&quot;math inline&quot;&gt;\(n\)&lt;/span&gt;维向量&lt;span class=&quot;math inline&quot;&gt;\(\mathbf{x}^{(1)} = (x^{(1)}_1, \dots, x^{(1)}_n)^T, \mathbf{x}^{(2)} = (x^{(2)}_1, \dots, x^{(2)}_n)^T\)&lt;/span&gt;，我们称&lt;span class=&quot;math inline&quot;&gt;\(\mathbf{x}^{(1)}\)&lt;/span&gt;支配&lt;span class=&quot;math inline&quot;&gt;\(\mathbf{x}^{(2)}\)&lt;/span&gt;（记作&lt;span class=&quot;math inline&quot;&gt;\(\mathbf{x}^{(1)} \prec \mathbf{x}^{(2)}\)&lt;/span&gt;）当且仅当&lt;span class=&quot;math inline&quot;&gt;\(\forall 1 \leq i \leq n,\ x^{(1)}_i \leq x^{(2)}_i\)&lt;/span&gt;，且&lt;span class=&quot;math inline&quot;&gt;\(\exists 1 \leq i \leq n,\ x^{(1)}_i &amp;lt; x^{(2)}_i\)&lt;/span&gt;。&lt;/p&gt;</summary>
     
     
     
